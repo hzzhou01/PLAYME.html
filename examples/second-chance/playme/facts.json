@@ -1,0 +1,159 @@
+{
+  "paper": {
+    "title": "Second Chance: A Two-Bit Cache Eviction Policy for Bursty Web Traffic",
+    "version": "paper/main.tex as received"
+  },
+  "refs": {
+    "abstract": {
+      "en": "Abstract",
+      "anchor": "Web caches evict objects when they run out of space"
+    },
+    "sec-intro": {
+      "en": "§1",
+      "anchor": "Introduction"
+    },
+    "sec-sc": {
+      "en": "§2.1",
+      "anchor": "Second chance"
+    },
+    "sec-burst": {
+      "en": "§2.2",
+      "anchor": "Bursts"
+    },
+    "sec-eval": {
+      "en": "§3",
+      "anchor": "Evaluation"
+    },
+    "sec-concl": {
+      "en": "§4",
+      "anchor": "Conclusion"
+    },
+    "tab-main": {
+      "en": "Table 1",
+      "anchor": "Hit rate and metadata updates per hit on the news trace"
+    },
+    "fig-hand": {
+      "en": "Fig. 1",
+      "anchor": "Eviction hand over eight objects"
+    }
+  },
+  "facts": {
+    "hit.fifo": {
+      "value": "61.2%",
+      "ref": "tab-main",
+      "loc": "row FIFO, column Hit rate"
+    },
+    "hit.sc": {
+      "value": "71.5%",
+      "ref": "tab-main",
+      "loc": "row Second chance, column Hit rate"
+    },
+    "hit.scb": {
+      "value": "74.8%",
+      "ref": "tab-main",
+      "loc": "row SCB (ours), column Hit rate"
+    },
+    "hit.lru": {
+      "value": "75.9%",
+      "ref": "tab-main",
+      "loc": "row LRU, column Hit rate"
+    },
+    "upd.fifo": {
+      "value": "0%",
+      "ref": "tab-main",
+      "loc": "row FIFO, column Updates per hit"
+    },
+    "upd.sc": {
+      "value": "2.4%",
+      "ref": "tab-main",
+      "loc": "row Second chance, column Updates per hit"
+    },
+    "upd.scb": {
+      "value": "3.1%",
+      "ref": "tab-main",
+      "loc": "row SCB (ours), column Updates per hit"
+    },
+    "upd.lru": {
+      "value": "100%",
+      "ref": "tab-main",
+      "loc": "row LRU, column Updates per hit"
+    },
+    "burst.k": {
+      "value": "8",
+      "ref": "sec-burst",
+      "loc": "the sentence that defines the burst bit (k=8)"
+    },
+    "trace.hours": {
+      "value": "24-hour",
+      "ref": "sec-eval",
+      "loc": "first sentence of §3"
+    },
+    "trace.requests": {
+      "value": "41.3 million",
+      "ref": "sec-eval",
+      "loc": "first sentence of §3"
+    },
+    "trace.objects": {
+      "value": "2.6 million",
+      "ref": "sec-eval",
+      "loc": "first sentence of §3"
+    },
+    "trace.cache": {
+      "value": "5%",
+      "ref": "sec-eval",
+      "loc": "first sentence of §3, cache size"
+    },
+    "fig.objects": {
+      "value": "eight",
+      "ref": "fig-hand",
+      "loc": "caption of Fig. 1"
+    }
+  },
+  "quotes": {
+    "fifo.abstract": {
+      "en": "First-in first-out (FIFO) eviction is cheap but evicts popular objects that happened to arrive early.",
+      "ref": "abstract"
+    },
+    "sc.rule": {
+      "en": "Each object carries a reference bit. A hit sets the bit. When the cache is full, the eviction hand moves over the objects in arrival order. An object whose bit is set gets a second chance: the hand clears the bit and moves on. The first object found with a clear bit is evicted.",
+      "ref": "sec-sc"
+    },
+    "fig.caption": {
+      "en": "Eviction hand over eight objects. Objects with a set bit survive one pass of the hand.",
+      "ref": "fig-hand"
+    },
+    "burst.def": {
+      "en": "News traffic arrives in bursts: an article is requested thousands of times within minutes, then rarely again.",
+      "ref": "sec-burst"
+    },
+    "burst.k.def": {
+      "en": "SCB adds a burst bit that is set when an object is hit more than k=8 times within one sweep of the hand.",
+      "ref": "sec-burst"
+    },
+    "burst.rule": {
+      "en": "The hand clears the burst bit first and the reference bit on its next pass, so a burst buys exactly one extra pass.",
+      "ref": "sec-burst"
+    },
+    "lru.cost": {
+      "en": "LRU tracks recency exactly, but it moves an object on every hit, which costs a lock and a cache line on busy servers.",
+      "ref": "sec-intro"
+    },
+    "concl": {
+      "en": "Two bits per object recover most of LRU's hit rate on bursty traffic without updating metadata on every hit.",
+      "ref": "sec-concl"
+    },
+    "tab.caption": {
+      "en": "Hit rate and metadata updates per hit on the news trace.",
+      "ref": "tab-main"
+    },
+    "eval.trace": {
+      "en": "We replay a 24-hour trace with 41.3 million requests over 2.6 million objects, with a cache of 5% of the objects.",
+      "ref": "sec-eval"
+    }
+  },
+  "runs": {
+    "scope": {
+      "en": "one eviction recorded from code/scb.py on a 20-request toy trace"
+    }
+  }
+}

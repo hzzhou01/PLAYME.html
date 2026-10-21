@@ -1,0 +1,7 @@
+/* The kit's default faces: subset (Latin) woff2 builds of three SIL OFL 1.1 fonts; licence in OFL.txt.
+   Archivo (display, expanded widths 112-125%), Instrument Sans (body), JetBrains Mono (labels, code).
+   Chinese text falls back to the system's CJK fonts (PingFang SC, Noto Sans SC, Microsoft YaHei).
+   bundle.py inlines these files, so PLAYME.html looks the same offline. */
+@font-face { font-family: 'Archivo'; src: url('Archivo-Expanded.woff2') format('woff2'); font-weight: 500 900; font-stretch: 112% 125%; font-display: swap; }
+@font-face { font-family: 'Instrument Sans'; src: url('InstrumentSans.woff2') format('woff2'); font-weight: 400 700; font-display: swap; }
+@font-face { font-family: 'JetBrains Mono'; src: url('JetBrainsMono.woff2') format('woff2'); font-weight: 400 800; font-display: swap; }

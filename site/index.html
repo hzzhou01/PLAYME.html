@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PLAYME</title>
+<meta name="description" content="PLAYME is a Claude Code skill that turns a paper or a project (code, docs, run logs) into one interactive page where readers operate the project's mechanisms instead of reading about them.">
+<meta property="og:title" content="Don't just README. PLAYME.">
+<meta property="og:description" content="A Claude Code skill that turns your paper or project into one offline, interactive page.">
+<meta property="og:image" content="https://hzzhou01.github.io/PLAYME.html/assets/social-preview.png">
+<meta property="og:url" content="https://hzzhou01.github.io/PLAYME.html/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#06070D">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Crect width=%2232%22 height=%2232%22 rx=%228%22 fill=%22%2306070D%22/%3E%3Cpath d=%22M7 3.5h12.5L26 10v18.5H7z%22 fill=%22none%22 stroke=%22%235EEAFF%22 stroke-width=%222%22 stroke-linejoin=%22round%22/%3E%3Cpath d=%22M13 13.5l7 4.5-7 4.5z%22 fill=%22%235EEAFF%22/%3E%3C/svg%3E">
+<script>
+/* Pick the language before first paint: ?lang= beats the saved choice, which beats the browser language. */
+(function () {
+  var l = null;
+  try { l = new URLSearchParams(location.search).get('lang'); } catch (e) {}
+  if (!l) { try { l = localStorage.getItem('pm-lang'); } catch (e) {} }
+  if (!l) l = (navigator.language || 'en').toLowerCase().indexOf('zh') === 0 ? 'zh' : 'en';
+  document.documentElement.lang = l.indexOf('zh') === 0 ? 'zh-CN' : 'en';
+})();
+</script>
+<link rel="stylesheet" href="fonts/fonts.css">
+<link rel="stylesheet" href="../skills/playme/kit/playme.css">
+<link rel="stylesheet" href="../skills/playme/kit/playme-desk.css">
+<link rel="stylesheet" href="../skills/playme/kit/playme-3d.css">
+<link rel="stylesheet" href="site.css">
+<!-- part styles -->
+<link rel="stylesheet" href="parts/read-or-play.css">
+<link rel="stylesheet" href="parts/patterns.css">
+<link rel="stylesheet" href="parts/anatomy.css">
+<link rel="stylesheet" href="parts/pipeline.css">
+<link rel="stylesheet" href="parts/case.css">
+<!-- /part styles -->
+</head>
+<body class="pm">
+<div class="sky" aria-hidden="true"></div>
+
+<header class="topbar">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="PLAYME">
+      <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+        <defs><linearGradient id="bm" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2BB8FF"/><stop offset="1" stop-color="#5EEAFF"/></linearGradient></defs>
+        <path d="M7 3.5h12.5L26 10v18.5H7z" fill="none" stroke="url(#bm)" stroke-width="2" stroke-linejoin="round"/>
+        <path d="M19.5 3.5V10H26" fill="none" stroke="url(#bm)" stroke-width="2" stroke-linejoin="round"/>
+        <path d="M13 13.5l7 4.5-7 4.5z" fill="#5EEAFF"/>
+      </svg>
+      <span class="brand-word"><b>PLAY</b><i class="tri" aria-hidden="true"></i>ME</span>
+    </a>
+    <nav class="chapters" aria-label="Chapters" data-s-aria-en="Chapters" data-s-aria-zh="章节">
+      <div class="chapters-track"></div><div class="chapters-fill"></div><div class="chapters-head"></div>
+    </nav>
+    <span class="chapter-now" aria-hidden="true"></span>
+    <div class="top-actions">
+      <button class="btn lang-btn" type="button" id="lang-toggle" aria-label="中文 · Switch to Chinese" data-s-aria-en="中文 · Switch to Chinese" data-s-aria-zh="EN · 切换到英文"><span data-s-en="中文" data-s-zh="EN">中文</span></button>
+      <a class="btn" href="https://github.com/hzzhou01/PLAYME.html" data-repo-path="" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+        <span class="gh-label">GitHub</span>
+      </a>
+    </div>
+  </div>
+</header>
+
+<main id="top">
+  <section class="hero" data-chapter="read-or-play" data-chapter-en="01 Read/play" data-chapter-zh="01 读还是玩">
+    <div class="wrap hero-grid">
+      <div class="hero-main">
+        <div class="eyebrow"><i></i><span data-s-en="A Claude Code skill · open source" data-s-zh="一个 Claude Code skill · 开源">A Claude Code skill · open source</span></div>
+        <h1 class="h1" aria-label="Don’t just README. PLAYME." data-s-aria-en="Don’t just README. PLAYME." data-s-aria-zh="别只写 README，给项目一个 PLAYME。">
+          <span class="dim" data-s-en="Don’t just" data-s-zh="别只写">Don’t just</span>
+          <span class="read"><s>READ</s>ME.</span>
+          <span class="play"><b>PLAY</b>ME.</span>
+        </h1>
+        <p class="hero-sub" data-s-en="PLAYME turns your paper or project (code, docs, run logs) into &lt;strong&gt;one interactive page&lt;/strong&gt;. Readers operate your project’s mechanisms instead of reading about them, and every number still matches your paper or docs." data-s-zh="PLAYME 把论文或项目（代码、文档、运行记录）变成&lt;strong&gt;一个可交互的页面&lt;/strong&gt;：读者亲手操作项目的机制，而不是读一段描述；页面上的每个数字都与论文或文档一致。" data-s-html>PLAYME turns your paper or project (code, docs, run logs) into <strong>one interactive page</strong>. Readers operate your project’s mechanisms instead of reading about them, and every number still matches your paper or docs.</p>
+        <div class="cta">
+          <div class="cmd"><code id="install-cmd"><em>/plugin install</em> playme <em>--marketplace</em> hzzhou01/PLAYME.html</code><button class="copy" type="button" data-copy="#install-cmd" data-s-en="Copy" data-s-zh="复制">Copy</button></div>
+          <a class="btn btn-star" href="https://github.com/hzzhou01/PLAYME.html" data-repo-path="" rel="noopener"><span aria-hidden="true">★</span> <span data-s-en="Star on GitHub" data-s-zh="在 GitHub 上加星">Star on GitHub</span></a>
+        </div>
+      </div>
+      <dl class="spec" aria-label="Spec sheet" data-s-aria-en="Spec sheet" data-s-aria-zh="规格">
+        <div><dt data-s-en="Input" data-s-zh="输入">Input</dt><dd data-s-en="paper or docs · code · run logs" data-s-zh="论文或文档 · 代码 · 运行记录">paper or docs · code · run logs</dd></div>
+        <div><dt data-s-en="Output" data-s-zh="输出">Output</dt><dd data-s-en="PLAYME.html &lt;span&gt;one offline file&lt;/span&gt;" data-s-zh="PLAYME.html &lt;span&gt;单个离线文件&lt;/span&gt;" data-s-html>PLAYME.html <span>one offline file</span></dd></div>
+        <div><dt data-s-en="Reader" data-s-zh="读者">Reader</dt><dd data-s-en="one question, one button, one minute" data-s-zh="一个问题、一个按钮、一分钟">one question, one button, one minute</dd></div>
+        <div><dt data-s-en="Checks" data-s-zh="检查">Checks</dt><dd data-s-en="words and controls per part; every number against the paper or docs" data-s-zh="每个部件的字数与控件数；每个数字对照论文或文档">words and controls per part; every number against the paper or docs</dd></div>
+        <div><dt data-s-en="This page" data-s-zh="本页">This page</dt><dd data-s-en="a PLAYME: 5 parts, checked by lint.mjs" data-s-zh="就是一个 PLAYME：5 个部件，经 lint.mjs 检查">a PLAYME: 5 parts, checked by lint.mjs</dd></div>
+        <div><dt data-s-en="Powers" data-s-zh="实战项目">Powers</dt><dd data-s-en="the OpenGCUA Interactive Lab (a computer-use agent)" data-s-zh="用 PLAYME 构建的 OpenGCUA 交互实验室（电脑操作智能体）">the OpenGCUA Interactive Lab (a computer-use agent)</dd></div>
+      </dl>
+    </div>
+    <div class="wrap"><div class="slot slot-first" id="lab-01" data-pm-slot="read-or-play"></div></div>
+  </section>
+
+  <section class="why" data-chapter="why" data-chapter-en="Why now" data-chapter-zh="为什么是现在">
+    <div class="wrap">
+      <div class="section-head"><span class="section-num" data-s-en="Why now" data-s-zh="为什么是现在">Why now</span></div>
+      <h2 class="section-title" data-s-en="Interactive explanations were always better. They were just too expensive." data-s-zh="交互式讲解一直更好，只是做起来太贵。">Interactive explanations were always better. They were just too expensive.</h2>
+      <div class="why-row">
+        <div class="why-item">
+          <div class="why-year">2011</div>
+          <p data-s-en="Bret Victor proposes &lt;q&gt;explorable explanations&lt;/q&gt;: text the reader can play with." data-s-zh="Bret Victor 提出&lt;q&gt;可探索的讲解&lt;/q&gt;（Explorable Explanations）：读者可以上手操作的文字。" data-s-html>Bret Victor proposes <q>explorable explanations</q>: text the reader can play with.</p>
+          <span class="src"><a href="https://worrydream.com/ExplorableExplanations/" rel="noopener">worrydream.com</a></span>
+        </div>
+        <div class="why-item">
+          <div class="why-year">2021</div>
+          <p data-s-en="Distill pauses. Its editors: &lt;q&gt;…the primary bottleneck is the amount of effort it takes to produce these articles…&lt;/q&gt;" data-s-zh="Distill 宣布暂停。编辑们写道：&lt;q&gt;……主要瓶颈在于制作这些文章所需的工作量……&lt;/q&gt;" data-s-html>Distill pauses. Its editors: <q>…the primary bottleneck is the amount of effort it takes to produce these articles…</q></p>
+          <span class="src"><a href="https://distill.pub/2021/distill-hiatus/" rel="noopener">distill.pub/2021/distill-hiatus</a></span>
+        </div>
+        <div class="why-item now">
+          <div class="why-year">2026</div>
+          <p data-s-en="A coding agent can now carry that effort, and PLAYME supplies the design rules. With PLAYME, Claude Code had the OpenGCUA lab’s first preview ready about four hours after the brief." data-s-zh="如今编程智能体可以承担这份工作量，PLAYME 提供设计规则。借助 PLAYME，Claude Code 在需求提出约四小时后，就交出了 OpenGCUA 交互实验室的第一版预览。">A coding agent can now carry that effort, and PLAYME supplies the design rules. With PLAYME, Claude Code had the OpenGCUA lab’s first preview ready about four hours after the brief.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="sec-patterns" data-chapter="patterns" data-chapter-en="02 Patterns" data-chapter-zh="02 模式">
+    <div class="wrap"><div class="slot" data-pm-slot="patterns"></div></div>
+  </section>
+  <section class="section" id="sec-anatomy" data-chapter="anatomy" data-chapter-en="03 Anatomy" data-chapter-zh="03 解剖">
+    <div class="wrap"><div class="slot" data-pm-slot="anatomy"></div></div>
+  </section>
+  <section class="section" id="sec-pipeline" data-chapter="pipeline" data-chapter-en="04 Workflow" data-chapter-zh="04 流程">
+    <div class="wrap"><div class="slot" data-pm-slot="pipeline"></div></div>
+  </section>
+
+  <section class="section" id="case" data-chapter="case" data-chapter-en="Case" data-chapter-zh="案例">
+    <div class="wrap">
+      <div class="section-head"><span class="section-num" data-s-en="Case · OpenGCUA" data-s-zh="案例 · OpenGCUA">Case · OpenGCUA</span></div>
+      <h2 class="section-title" data-s-en="A real research project, made playable" data-s-zh="让一个真实的研究项目变得可交互">A real research project, made playable</h2>
+      <p class="section-lede" data-s-en="PLAYME made the project page of OpenGCUA, a computer-use agent research project, interactive. Claude Code built its interactive lab with PLAYME in one session while the paper’s authors reviewed each preview." data-s-zh="PLAYME 让 OpenGCUA（一个电脑操作智能体研究项目）的项目主页变得可交互：Claude Code 借助 PLAYME 在一次会话中完成了它的交互实验室，论文作者评审了每一版预览。">PLAYME made the project page of OpenGCUA, a computer-use agent research project, interactive. Claude Code built its interactive lab with PLAYME in one session while the paper’s authors reviewed each preview.</p>
+      <div class="figures">
+        <div class="figure"><b>7</b><span data-s-en="labs, from a 3D teardown of a Mac to real runs" data-s-zh="个实验：从 3D 拆解 Mac 到真机运行">labs, from a 3D teardown of a Mac to real runs</span></div>
+        <div class="figure"><b>18</b><span data-s-en="playable parts, each with a progress bar" data-s-zh="个可播放部件：每个都有进度条">playable parts, each with a progress bar</span></div>
+        <div class="figure"><b>28</b><span data-s-en="author requests over 7 review rounds" data-s-zh="条作者意见：来自 7 轮评审">author requests over 7 review rounds</span></div>
+        <div class="figure"><b>1</b><span data-s-en="offline HTML file, English and Chinese" data-s-zh="个离线 HTML 文件：中英双语">offline HTML file, English and Chinese</span></div>
+      </div>
+      <div class="slot" data-pm-slot="case"></div>
+    </div>
+  </section>
+
+  <section class="section" id="install" data-chapter="install" data-chapter-en="Install" data-chapter-zh="安装">
+    <div class="wrap">
+      <div class="section-head"><span class="section-num" data-s-en="Install" data-s-zh="安装">Install</span></div>
+      <h2 class="section-title" data-s-en="Give your project a PLAYME" data-s-zh="给你的项目加一个 PLAYME">Give your project a PLAYME</h2>
+      <div class="install">
+        <div>
+          <div class="term">
+            <div class="term-head"><i></i><i></i><i></i><span>Claude Code</span></div>
+<div class="term-body">
+            <div class="term-opt"><pre id="inst-1"><span class="c" data-s-en="# one step (Claude Code 2.1.275 or later)" data-s-zh="# 一步安装（Claude Code 2.1.275 及以上）"># one step (Claude Code 2.1.275 or later)</span>
+<span class="p">&gt; </span>/plugin install playme --marketplace hzzhou01/PLAYME.html</pre><button class="copy" type="button" data-copy="#inst-1" data-copy-lines="1" data-s-en="Copy" data-s-zh="复制">Copy</button></div>
+            <div class="term-opt"><pre id="inst-2"><span class="c" data-s-en="# or: add the marketplace, then install" data-s-zh="# 或者：先添加插件市场，再安装"># or: add the marketplace, then install</span>
+<span class="p">&gt; </span>/plugin marketplace add hzzhou01/PLAYME.html
+<span class="p">&gt; </span>/plugin install playme@playme</pre><button class="copy" type="button" data-copy="#inst-2" data-copy-lines="1" data-s-en="Copy" data-s-zh="复制">Copy</button></div>
+            <div class="term-opt"><pre id="inst-3"><span class="c" data-s-en="# or copy the skill folder" data-s-zh="# 或者直接复制 skill 文件夹"># or copy the skill folder</span>
+<span class="p">$ </span>git clone https://github.com/hzzhou01/PLAYME.html
+<span class="p">$ </span>cp -r PLAYME.html/skills/playme ~/.claude/skills/</pre><button class="copy" type="button" data-copy="#inst-3" data-copy-lines="1" data-s-en="Copy" data-s-zh="复制">Copy</button></div>
+          </div>
+            <div class="term-row"><span class="term-note" data-s-en="Needs Claude Code and Python 3. The checks also use Node and Chrome." data-s-zh="需要 Claude Code 和 Python 3；检查脚本还会用到 Node 和 Chrome。">Needs Claude Code and Python 3. The checks also use Node and Chrome.</span></div>
+          </div>
+          <div class="prompt">
+            <span class="prompt-label" data-s-en="Then ask Claude" data-s-zh="然后对 Claude 说">Then ask Claude</span>
+            <span id="prompt-text" data-s-en="Use the playme skill to turn ./paper, ./code and ./runs into a PLAYME for our project. The one thing readers should try: &lt;your key mechanism&gt;. English and Chinese." data-s-zh="用 playme skill 把 ./paper、./code 和 ./runs 做成我们项目的 PLAYME。读者最应该亲手试的是：&lt;你的核心机制&gt;。中英双语。">Use the playme skill to turn ./paper, ./code and ./runs into a PLAYME for our project. The one thing readers should try: &lt;your key mechanism&gt;. English and Chinese.</span>
+            <button class="copy prompt-copy" type="button" data-copy="#prompt-text" data-s-en="Copy" data-s-zh="复制">Copy</button>
+          </div>
+          <p class="install-links">
+            <a href="https://github.com/hzzhou01/PLAYME.html/blob/main/skills/playme/SKILL.md" data-repo-path="/blob/main/skills/playme/SKILL.md" rel="noopener">SKILL.md</a>
+            <a href="examples/starter/PLAYME.html" data-local-path="examples/starter/PLAYME.html" data-s-en="Starter PLAYME ▶" data-s-zh="起步示例 ▶">Starter PLAYME ▶</a>
+            <a href="examples/second-chance/PLAYME.html" data-local-path="examples/second-chance/PLAYME.html" data-s-en="A PLAYME built blind ▶" data-s-zh="盲测做出的 PLAYME ▶">A PLAYME built blind ▶</a>
+            <a href="https://github.com/hzzhou01/PLAYME.html/blob/main/skills/playme/references/review-loop.md" data-repo-path="/blob/main/skills/playme/references/review-loop.md" rel="noopener" data-s-en="The review ledger" data-s-zh="评审记录">The review ledger</a>
+          </p>
+        </div>
+        <div class="tree" id="tree">
+          <div class="tree-files" role="group" aria-label="Files in the skill" data-s-aria-en="Files in the skill" data-s-aria-zh="skill 中的文件"></div>
+          <pre class="tree-view" id="tree-view" tabindex="0"></pre>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <span><b>PLAYME</b> · MIT · <span data-s-en="This page is a PLAYME, built with the kit and checked by lint.mjs" data-s-zh="本页就是一个 PLAYME：用组件库搭建，经 lint.mjs 检查">This page is a PLAYME, built with the kit and checked by lint.mjs</span></span>
+    <span class="foot-links">
+      <a href="https://github.com/hzzhou01/PLAYME.html" data-repo-path="" rel="noopener">GitHub</a>
+      <a href="https://github.com/hzzhou01/PLAYME.html/blob/main/README.md" data-repo-path="/blob/main/README.md" rel="noopener">README</a>
+      <a href="https://github.com/hzzhou01/PLAYME.html/blob/main/skills/playme/SKILL.md" data-repo-path="/blob/main/skills/playme/SKILL.md" rel="noopener">SKILL.md</a>
+    </span>
+    <span data-s-en="three.js (MIT) · Archivo, Instrument Sans, JetBrains Mono (SIL OFL 1.1)" data-s-zh="three.js（MIT）· Archivo、Instrument Sans、JetBrains Mono（SIL OFL 1.1）">three.js (MIT) · Archivo, Instrument Sans, JetBrains Mono (SIL OFL 1.1)</span>
+  </div>
+</footer>
+
+<script src="../skills/playme/kit/playme.js"></script>
+<script src="../skills/playme/kit/playme-desk.js"></script>
+<script src="../skills/playme/kit/playme-3d.js"></script>
+<script src="data/ledger.js"></script>
+<script src="data/tree.js"></script>
+<script src="site.js"></script>
+<!-- part scripts -->
+<script src="parts/read-or-play.js"></script>
+<script src="parts/patterns.js"></script>
+<script src="parts/anatomy.js"></script>
+<script src="parts/pipeline.js"></script>
+<script src="parts/case.js"></script>
+<!-- /part scripts -->
+<script>PMSite.boot();</script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+{
+  "_doc": "Glossary and ban list. fidelity.py fails on any 'ban' match in the rendered text (both languages) and warns on 'prefer' hits. A ban entry is a string (case-insensitive term, or /regex/flags) or {pattern, flags, use, why}. See references/words.md.",
+  "project": { "name": "<ProjectName>" },
+  "keep_english": ["README", "PLAYME", "Claude Code", "three.js", "Harness", "SDK", "GUI", "CLI", "API"],
+  "terms": [
+    { "en": "sandbox benchmark", "zh": "沙盒基准测试", "ref": "§4.1", "avoid": ["benchmark habits", "评测习惯"] },
+    { "en": "step", "zh": "步", "def": "one model response", "avoid": ["turn", "round", "轮次"] },
+    { "en": "code execution", "zh": "代码执行", "ref": "§3.1" }
+  ],
+  "ban": [
+    { "pattern": "benchmark habits?", "flags": "i", "use": "benchmark assumption", "why": "R2.2: invented label" },
+    { "pattern": "评测习惯", "use": "基准测试假设", "why": "R2.2: invented label" },
+    { "pattern": "reasoning effort|推理强度", "flags": "i", "why": "a run configuration the paper does not print" }
+  ],
+  "prefer": { "5-layer": "five-layer architecture" }
+}

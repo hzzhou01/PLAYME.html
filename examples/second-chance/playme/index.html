@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PLAYME · Second Chance with Bursts (SCB)</title>
+<meta name="description" content="Operate the eviction hand of Second Chance with Bursts (SCB): watch a set bit buy a second chance, and a burst buy exactly one extra pass.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Crect width=%2232%22 height=%2232%22 rx=%228%22 fill=%22%2307080E%22/%3E%3Ccircle cx=%2216%22 cy=%2216%22 r=%229%22 fill=%22none%22 stroke=%22%2378849E%22 stroke-width=%222%22/%3E%3Cpath d=%22M16 16 L22 9%22 stroke=%22%235EEAFF%22 stroke-width=%223%22 stroke-linecap=%22round%22/%3E%3C/svg%3E">
+<link rel="stylesheet" href="kit/fonts/fonts.css">
+<link rel="stylesheet" href="kit/playme.css">
+<link rel="stylesheet" href="page.css">
+<link rel="stylesheet" href="parts/ring.css">
+<link rel="stylesheet" href="parts/03-results.css">
+</head>
+<body class="pm pm-page">
+<header class="page-head">
+  <p class="page-eyebrow">PLAYME · Interactive paper page</p>
+  <h1 class="page-title" id="page-title"></h1>
+  <p class="page-authors">A. Researcher and B. Researcher</p>
+  <p class="page-lede">Second Chance with Bursts (SCB) keeps two bits per object and one eviction hand. Each part below
+    asks one question. Press its button and watch the hand work.</p>
+  <ol class="page-toc" aria-label="Parts">
+    <li><a href="#second-chance"><span>01</span> Second chance</a></li>
+    <li><a href="#burst"><span>02</span> Bursts: one extra pass</a></li>
+    <li><a href="#results"><span>03</span> What the paper measured</a></li>
+  </ol>
+</header>
+
+<main id="pm-parts">
+  <!-- Reading order: the familiar baseline (FIFO) first, then the core contribution, then the evidence. -->
+  <div data-pm-slot="second-chance"></div>
+  <div data-pm-slot="burst"></div>
+  <div data-pm-slot="results"></div>
+</main>
+
+<footer class="page-foot">
+  <p>Every number comes from the paper and is cited as printed. Every animated scene is a simulation built from
+    code/scb.py and says so under its stage.</p>
+  <p>Built with PLAYME. Fonts: Archivo, Instrument Sans, JetBrains Mono (SIL Open Font License 1.1).</p>
+</footer>
+
+<script src="kit/playme.js"></script>
+<script type="application/json" id="pm-facts" data-src="facts.json"></script>
+<script src="parts/ring.js"></script>
+<script src="parts/01-second-chance.js"></script>
+<script src="parts/02-burst.js"></script>
+<script src="parts/03-results.js"></script>
+<script>
+  PM.boot(() => {
+    window.FACTS = window.PM_FACTS;   // facts.json, read by PM.boot before the parts mount
+    // the paper's title; a non-breaking hyphen keeps "Two-Bit" on one line
+    document.getElementById('page-title').textContent = window.FACTS.paper.title.replace('Two-Bit', 'Two\u2011Bit');
+  });
+</script>
+</body>
+</html>

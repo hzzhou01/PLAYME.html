@@ -1,0 +1,26 @@
+{
+  "_doc": "Glossary and ban list for the SCB PLAYME. Only 'ban' is enforced by fidelity.py; 'terms'/'avoid' guide the writer.",
+  "project": { "name": "Second Chance with Bursts (SCB)" },
+  "keep_english": ["PLAYME", "FIFO", "LRU", "SCB"],
+  "terms": [
+    { "en": "eviction hand", "ref": "§2.1", "def": "the pointer that moves over the cached objects in arrival order when the cache is full", "avoid": ["clock hand", "pointer", "cursor", "scanner"] },
+    { "en": "reference bit", "ref": "§2.1", "def": "set by a hit, cleared by the hand", "avoid": ["use bit", "accessed bit", "hot bit"] },
+    { "en": "burst bit", "ref": "§2.2", "def": "set when an object is hit more than k=8 times within one sweep of the hand", "avoid": ["frequency bit", "popularity bit"] },
+    { "en": "second chance", "ref": "§2.1", "def": "the hand clears a set bit and moves on instead of evicting" },
+    { "en": "pass", "ref": "§2.2", "def": "one visit of the hand to an object; the paper also says 'sweep' (see notes)", "avoid": ["round", "cycle", "lap"] },
+    { "en": "hit rate", "ref": "Table 1", "avoid": ["hit ratio"] },
+    { "en": "updates per hit", "ref": "Table 1", "def": "metadata updates per hit", "avoid": ["writes per hit"] },
+    { "en": "Second Chance with Bursts (SCB)", "ref": "Abstract" }
+  ],
+  "ban": [
+    { "pattern": "\\bCLOCK\\b", "use": "second chance / eviction hand", "why": "a name the paper never uses" },
+    { "pattern": "\\bLFU\\b|least frequently", "flags": "i", "why": "a policy the paper does not discuss" },
+    { "pattern": "hit ratio", "flags": "i", "use": "hit rate", "why": "the paper's term is hit rate" },
+    { "pattern": "writes per hit", "flags": "i", "use": "updates per hit", "why": "the paper's column name" },
+    { "pattern": "use bit|accessed bit", "flags": "i", "use": "reference bit", "why": "the paper's term is reference bit" },
+    { "pattern": "of the gap", "flags": "i", "why": "gap ratio held back pending the authors (docs/authors.md 1)" },
+    { "pattern": "130,?000|130K", "flags": "i", "why": "derived cache size; the paper prints only 5% of the objects" },
+    { "pattern": "92(\\.5)?\\s?%|70(\\.1)?\\s?%", "why": "computed ratios are not paper facts" }
+  ],
+  "prefer": { "sweep": "pass (except inside quotes)" }
+}

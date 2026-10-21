@@ -1,0 +1,12 @@
+/* Page shell for the starter. The kit styles everything inside .pm-part; this file only lays out the page. */
+html { background: var(--pm-bg, #07080E); }
+body { margin: 0; background: var(--pm-bg); color: var(--pm-tx); font: 400 16px/1.6 var(--pm-sans); }
+.page-head, #pm-parts, .page-foot { max-width: 1160px; margin: 0 auto;
+  padding-left: max(18px, env(safe-area-inset-left, 0px)); padding-right: max(18px, env(safe-area-inset-right, 0px)); }
+.page-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; padding-block: 56px 8px; }
+.page-eyebrow { margin: 0; font: 600 12px/1 var(--pm-mono); letter-spacing: .14em; text-transform: uppercase; color: var(--pm-accent); }
+.page-title { margin: 14px 0 0; font: 800 clamp(32px, 5vw, 56px)/1.02 var(--pm-display); letter-spacing: -.025em; color: var(--pm-hi); text-wrap: balance; }
+.page-lede { margin: 14px 0 0; max-width: 60ch; font-size: 18px; }
+#pm-parts { display: grid; gap: 72px; padding-block: 36px 24px; }
+.page-foot { padding-block: 40px 56px; font: 500 12px/1.5 var(--pm-mono); color: var(--pm-mu); }
+html[lang^="zh"] .page-eyebrow { letter-spacing: .04em; text-transform: none; }

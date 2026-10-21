@@ -1,0 +1,52 @@
+/* Page shell for the SCB PLAYME. The kit styles everything inside .pm-part; this file lays out the page and adds the
+ * page's own roles: the hand (accent), the reference bit (info blue), the burst bit (amber), survived (ok), evicted (err). */
+.pm {
+  --scb-hand: var(--pm-accent);
+  --scb-ref: #7AA8FF;
+  --scb-burst: #FFB454;
+  --scb-hit-rate: #2BB8FF;
+  --scb-update: #FFD25E;
+}
+html { background: var(--pm-bg, #07080E); }
+body.pm-page { margin: 0; }
+.page-head, #pm-parts, .page-foot { max-width: 1160px; margin: 0 auto;
+  padding-left: max(18px, env(safe-area-inset-left, 0px)); padding-right: max(18px, env(safe-area-inset-right, 0px)); }
+
+.page-head { position: relative; padding-block: 40px 0; }
+.page-head::before {             /* a faint eviction ring behind the title: the page's one ornament */
+  content: ''; position: absolute; right: 18px; top: 22px; width: 190px; height: 190px; border-radius: 50%;
+  background:
+    conic-gradient(from -8deg, color-mix(in srgb, var(--scb-hand) 55%, transparent) 0 2deg, transparent 2deg 360deg),
+    repeating-conic-gradient(from -18deg, var(--pm-line-2) 0 36deg, transparent 36deg 45deg);
+  -webkit-mask: radial-gradient(circle, transparent 0 62%, #000 63% 70%, transparent 71%);
+          mask: radial-gradient(circle, transparent 0 62%, #000 63% 70%, transparent 71%);
+  opacity: .9; pointer-events: none;
+}
+.page-eyebrow { margin: 0; font: 600 12px/1 var(--pm-mono); letter-spacing: .14em; text-transform: uppercase; color: var(--pm-accent); }
+.page-title { position: relative; max-width: 22em; margin: 14px 0 0; font: 800 clamp(30px, 3.9vw, 48px)/1.06 var(--pm-display);
+  letter-spacing: -.025em; color: var(--pm-hi); text-wrap: balance; }
+.page-authors { margin: 14px 0 0; font: 500 13px/1.5 var(--pm-mono); color: var(--pm-mu); }
+.page-lede { margin: 14px 0 0; max-width: 66ch; font-size: 18px; line-height: 1.6; color: var(--pm-tx); }
+.page-toc { display: flex; flex-wrap: wrap; gap: 6px 28px; margin: 20px 0 0; padding: 16px 0 0; list-style: none;
+  border-top: 1px solid var(--pm-line); font: 500 13px/1.5 var(--pm-mono); }
+.page-toc a { color: var(--pm-tx); text-decoration: none; }
+.page-toc a:hover { color: var(--pm-hi); }
+.page-toc span { margin-right: 8px; color: var(--pm-accent); }
+
+#pm-parts { display: grid; gap: 88px; padding-block: 36px 24px; }
+.page-foot { display: grid; gap: 6px; padding-block: 48px 64px; font: 500 12px/1.6 var(--pm-mono); color: var(--pm-mu); }
+.page-foot p { margin: 0; max-width: 90ch; }
+
+/* quotes and the printed table inside folds (the kit has no style for these) */
+.pm .scb-quote { margin: 0; padding: 2px 0 2px 16px; border-left: 2px solid var(--pm-line-2); color: var(--pm-hi);
+  font-size: 15.5px; line-height: 1.7; quotes: '\201C' '\201D'; }
+.pm .scb-quote q { font-style: normal; }
+.pm .scb-cite { display: block; margin-top: 4px; font: 500 12px/1.5 var(--pm-mono); color: var(--pm-mu); }
+.pm .scb-note { color: var(--pm-tx); }
+
+@media (max-width: 720px) {
+  .page-head { padding-block: 40px 4px; }
+  .page-head::before { width: 140px; height: 140px; top: 12px; right: 8px; opacity: .55; }
+  .page-lede { font-size: 16.5px; }
+  #pm-parts { gap: 64px; }
+}

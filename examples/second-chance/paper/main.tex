@@ -1,0 +1,52 @@
+\documentclass{article}
+\title{Second Chance: A Two-Bit Cache Eviction Policy for Bursty Web Traffic}
+\author{A. Researcher \and B. Researcher}
+\begin{document}
+\maketitle
+\begin{abstract}
+Web caches evict objects when they run out of space. First-in first-out (FIFO) eviction is cheap but evicts popular
+objects that happened to arrive early. We propose \emph{Second Chance with Bursts} (SCB), which keeps one reference
+bit and one burst bit per object. On a 24-hour trace of a news site, SCB raises the hit rate from 61.2\% (FIFO) to
+74.8\%, close to LRU (75.9\%), while updating metadata on only 3.1\% of hits instead of every hit.
+\end{abstract}
+
+\section{Introduction}
+A cache that evicts the wrong object pays twice: once to fetch it again, and once for the object it evicted instead.
+FIFO ignores how often an object is used. LRU tracks recency exactly, but it moves an object on every hit, which costs
+a lock and a cache line on busy servers.
+
+\section{Method}
+\subsection{Second chance}
+Each object carries a reference bit. A hit sets the bit. When the cache is full, the eviction hand moves over the
+objects in arrival order. An object whose bit is set gets a second chance: the hand clears the bit and moves on. The
+first object found with a clear bit is evicted.
+
+\subsection{Bursts}
+News traffic arrives in bursts: an article is requested thousands of times within minutes, then rarely again. A plain
+reference bit keeps such an object alive long after its burst. SCB adds a burst bit that is set when an object is hit
+more than $k=8$ times within one sweep of the hand. The hand clears the burst bit first and the reference bit on its
+next pass, so a burst buys exactly one extra pass.
+
+\section{Evaluation}
+We replay a 24-hour trace with 41.3 million requests over 2.6 million objects, with a cache of 5\% of the objects.
+
+\begin{table}[h]
+\caption{Hit rate and metadata updates per hit on the news trace.}
+\begin{tabular}{lcc}
+Policy & Hit rate & Updates per hit \\
+FIFO & 61.2\% & 0\% \\
+Second chance & 71.5\% & 2.4\% \\
+SCB (ours) & 74.8\% & 3.1\% \\
+LRU & 75.9\% & 100\% \\
+\end{tabular}
+\end{table}
+
+\begin{figure}[h]
+\caption{Eviction hand over eight objects. Objects with a set bit survive one pass of the hand.}
+\end{figure}
+
+Table 1 shows that SCB closes 79\% of the gap between FIFO and LRU. Figure 1 illustrates one sweep.
+
+\section{Conclusion}
+Two bits per object recover most of LRU's hit rate on bursty traffic without updating metadata on every hit.
+\end{document}

@@ -1,0 +1,492 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PLAYME kit · exploded 3D view</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M4 2.5v11L13.5 8z' fill='%235EEAFF'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="fonts/fonts.css">
+<link rel="stylesheet" href="playme.css">
+<link rel="stylesheet" href="playme-3d.css">
+<style>
+  /* Page chrome for this demo only (kit tokens). The part and the 3D view are pure kit. */
+  .pm .d3 { max-width: 1120px; margin: 0 auto; padding: 0 24px 120px; }
+  .pm .d3-top { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 18px 0; border-bottom: 1px solid var(--pm-line); }
+  .pm .d3-mark { display: flex; align-items: baseline; gap: 10px; color: var(--pm-hi); text-decoration: none; }
+  .pm .d3-mark b { font: 800 19px/1 var(--pm-display); letter-spacing: .02em; }
+  .pm .d3-mark b i { font-style: normal; color: var(--pm-accent); text-shadow: 0 0 14px color-mix(in srgb, var(--pm-accent) 70%, transparent); }
+  .pm .d3-mark span { font: 500 12px/1 var(--pm-mono); color: var(--pm-mu); }
+  .pm .d3-hero { padding: 48px 0 30px; }
+  .pm .d3-hero h1 { max-width: 16em; font: 800 clamp(30px, 2.6vw + 18px, 48px)/1.06 var(--pm-display); letter-spacing: -.025em; color: var(--pm-hi); text-wrap: balance; }
+  html[lang^="zh"] .pm .d3-hero h1 { font-size: clamp(28px, 2.2vw + 16px, 42px); line-height: 1.3; letter-spacing: .01em; }
+  .pm .d3-hero p { max-width: 42em; margin-top: 14px; font-size: 17px; line-height: 1.65; color: var(--pm-tx); }
+  .pm .d3-hero p code, .pm .d3-sec p code { font: 500 .9em var(--pm-mono); color: var(--pm-hi); white-space: nowrap; }
+  .pm .d3-sec { padding-top: 64px; }
+  .pm .d3-sec > header { display: grid; gap: 8px; margin-bottom: 20px; }
+  .pm .d3-num { font: 500 12px/1.4 var(--pm-mono); letter-spacing: .14em; color: var(--pm-mu); }
+  .pm .d3-sec h2 { font: 700 clamp(22px, 1vw + 17px, 28px)/1.2 var(--pm-display); letter-spacing: -.012em; color: var(--pm-hi); }
+  html[lang^="zh"] .pm .d3-sec h2 { letter-spacing: .01em; line-height: 1.4; }
+  .pm .d3-sec header p { max-width: 46em; font-size: 15.5px; line-height: 1.65; color: var(--pm-tx); }
+  .pm .d3-api { display: grid; gap: 14px; padding: 18px 20px; border: 1px solid var(--pm-line); border-radius: var(--pm-r-lg); background: var(--pm-panel); }
+  .pm .d3-calls { display: flex; flex-wrap: wrap; gap: 8px; }
+  .pm .d3-calls .pm-btn-label { font-family: var(--pm-mono); font-size: 12.5px; letter-spacing: 0; text-transform: none; }
+  .pm .d3-state { font: 12.5px/1.7 var(--pm-mono); color: var(--pm-mu); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+  .pm .d3-state b { font-weight: 500; color: var(--pm-hi); }
+  .pm .d3-foot { margin-top: 72px; padding-top: 18px; border-top: 1px solid var(--pm-line); font: 500 12px/1.6 var(--pm-mono); color: var(--pm-mu); }
+  @media (max-width: 560px) { .pm .d3 { padding: 0 16px 80px; } .pm .d3-hero { padding-top: 32px; } .pm .d3-api { padding: 14px; } }
+</style>
+</head>
+<body class="pm pm-page">
+<div class="d3">
+  <header class="d3-top">
+    <a class="d3-mark" href="demo.html"><b>PLAY<i>▶</i>ME</b><span>kit · playme-3d.js</span></a>
+    <span id="d3-lang"></span>
+  </header>
+
+  <section class="d3-hero">
+    <h1 data-l-en="Exploded 3D view: take a screen apart" data-l-zh="3D 拆解视图：把一个界面拆开看">Exploded 3D view: take a screen apart</h1>
+    <p data-lh-en="&lt;code&gt;PM.layers3d(el, {layers})&lt;/code&gt; turns canvases into luminous glass sheets. Readers drag to orbit, click a layer to fly to it, and press Play for a guided pass that a scrubber can rewind." data-lh-zh="&lt;code&gt;PM.layers3d(el, {layers})&lt;/code&gt; 把一组 canvas 变成发光的玻璃图层。读者拖动即可旋转，点击图层镜头飞过去；按播放键走一遍导览，进度条可以随时拖回。"><code>PM.layers3d(el, {layers})</code> turns canvases into luminous glass sheets.</p>
+  </section>
+
+  <div id="d3-part"></div>
+
+  <section class="d3-sec" id="api">
+    <header>
+      <span class="d3-num">API</span>
+      <h2 data-l-en="Drive the view from code" data-l-zh="用代码驱动视图">Drive the view from code</h2>
+      <p data-lh-en="Each button makes one call on the view object, the same calls a player script makes. Add &lt;code&gt;?pm3d=off&lt;/code&gt; to the address to see the CSS fallback." data-lh-zh="每个按钮对视图对象做一次调用，和播放脚本里的调用完全相同。在地址后加 &lt;code&gt;?pm3d=off&lt;/code&gt; 可查看 CSS 降级效果。">Each button makes one call on the view object.</p>
+    </header>
+    <div class="d3-api">
+      <div class="d3-calls" id="d3-calls"></div>
+      <p class="d3-state" id="d3-state" aria-live="off"></p>
+    </div>
+    <div id="d3-src" style="margin-top: 18px"></div>
+  </section>
+
+  <footer class="d3-foot">PLAYME kit · MIT · three.js r160 (MIT) <span data-l-en="is loaded on demand." data-l-zh="按需加载。">is loaded on demand.</span></footer>
+</div>
+
+<script src="playme.js"></script>
+<script src="playme-3d.js"></script>
+<script>
+(function () {
+  'use strict';
+  const PM = window.PM;
+  const { L } = PM;
+  const zh = () => PM.lang() === 'zh';
+  const T = (en, cn) => (zh() ? cn : en);
+
+  /* ---------------------------------------------------------------- tiny canvas helpers (logical px) */
+  const SANS = '"Instrument Sans", system-ui, -apple-system, "Segoe UI", "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif';
+  const MONO = '"JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, "PingFang SC", monospace';
+  function rr(c, x, y, w, h, r) { c.beginPath(); c.roundRect(x, y, w, h, r); }
+  function text(c, s, x, y, font, color, align) { c.font = font; c.fillStyle = color; c.textAlign = align || 'left'; c.textBaseline = 'alphabetic'; c.fillText(s, x, y); }
+  // the app's component boxes: shared by the screen, the UI tree and the event layer, so the layers line up
+  const BOX = {
+    toolbar: [0, 0, 1200, 56], nav: [0, 56, 210, 694], heading: [240, 76, 380, 62], run: [1010, 80, 160, 42],
+    kpi: [[240, 156, 296, 88], [557, 156, 296, 88], [874, 156, 296, 88]], chart: [240, 262, 930, 262], table: [240, 542, 930, 190],
+  };
+  const WEEKS = [['W33', 4210, 118], ['W34', 4630, 124], ['W35', 4480, 121], ['W36', 5120, 131], ['W37', 5940, 148], ['W38', 6210, 152], ['W39', 6480, 161], ['W40', 6912, 170]];
+
+  /* ---------------------------------------------------------------- layer 1 · the app screen (a light, real-looking UI) */
+  function drawScreen(c, W, H) {
+    c.fillStyle = '#F3F5F9'; c.fillRect(0, 0, W, H);
+    // toolbar
+    c.fillStyle = '#FFFFFF'; c.fillRect(0, 0, W, 56);
+    c.fillStyle = '#E3E7EF'; c.fillRect(0, 55, W, 1);
+    const g = c.createLinearGradient(20, 16, 44, 40); g.addColorStop(0, '#4F7BFF'); g.addColorStop(1, '#2BB8FF');
+    rr(c, 20, 16, 24, 24, 7); c.fillStyle = g; c.fill();
+    text(c, 'Atlas', 54, 34, `700 17px ${SANS}`, '#141B2B');
+    text(c, T('Reports  /  Weekly report', '报告  /  周报'), 118, 34, `15px ${SANS}`, '#6B7488');
+    rr(c, 836, 14, 232, 28, 8); c.fillStyle = '#F1F3F8'; c.fill();
+    text(c, T('Search', '搜索'), 860, 33, `14px ${SANS}`, '#9AA3B5');
+    c.beginPath(); c.arc(1162, 28, 14, 0, Math.PI * 2); c.fillStyle = '#FFB454'; c.fill();
+    text(c, 'MK', 1162, 33, `700 11px ${SANS}`, '#5A3A08', 'center');
+    // navigation
+    c.fillStyle = '#FFFFFF'; c.fillRect(0, 56, 210, H - 56);
+    c.fillStyle = '#E3E7EF'; c.fillRect(209, 56, 1, H - 56);
+    const nav = zh() ? ['概览', '报告', '客户', '数据源', '设置'] : ['Overview', 'Reports', 'Customers', 'Data sources', 'Settings'];
+    nav.forEach((s, i) => {
+      const y = 100 + i * 46;
+      if (i === 1) { rr(c, 12, y - 23, 186, 38, 9); c.fillStyle = '#EAF0FF'; c.fill(); }
+      rr(c, 28, y - 12, 16, 16, 4); c.fillStyle = i === 1 ? '#2F5BEA' : '#C9CFDB'; c.fill();
+      text(c, s, 56, y + 1, `${i === 1 ? 600 : 400} 15px ${SANS}`, i === 1 ? '#2F5BEA' : '#4B5468');
+    });
+    // heading + primary action
+    text(c, T('Weekly report', '周报'), 240, 112, `700 30px ${SANS}`, '#111827');
+    text(c, T('8 weeks · updated 09:41', '近 8 周 · 09:41 更新'), 240, 134, `14px ${SANS}`, '#7A8397');
+    rr(c, 1010, 80, 160, 42, 10); c.fillStyle = '#2F5BEA'; c.fill();
+    text(c, T('Run report', '生成报告'), 1090, 107, `600 16px ${SANS}`, '#FFFFFF', 'center');
+    // KPI cards
+    const kpis = [[T('Revenue', '收入'), '$48.2k', '+12.4%', '#16A34A'], [T('Orders', '订单'), '1,204', '+4.1%', '#16A34A'], [T('Conversion', '转化率'), '3.4%', '−0.3', '#DC2626']];
+    BOX.kpi.forEach(([x, y, w, h], i) => {
+      rr(c, x, y, w, h, 12); c.fillStyle = '#FFFFFF'; c.fill(); c.strokeStyle = '#E3E7EF'; c.lineWidth = 1; c.stroke();
+      text(c, kpis[i][0], x + 20, y + 30, `600 13px ${SANS}`, '#7A8397');
+      text(c, kpis[i][1], x + 20, y + 68, `700 30px ${SANS}`, '#111827');
+      text(c, kpis[i][2], x + w - 20, y + 68, `600 14px ${SANS}`, kpis[i][3], 'right');
+    });
+    // chart card
+    const [cx, cy, cw, ch] = BOX.chart;
+    rr(c, cx, cy, cw, ch, 12); c.fillStyle = '#FFFFFF'; c.fill(); c.strokeStyle = '#E3E7EF'; c.stroke();
+    text(c, T('Revenue by week', '每周收入'), cx + 20, cy + 32, `700 17px ${SANS}`, '#111827');
+    const base = cy + ch - 34; const top = cy + 56; const bw = 64; const step = (cw - 80) / WEEKS.length;
+    c.strokeStyle = '#EEF1F6';
+    for (let k = 0; k <= 3; k++) { const y = base - ((base - top) * k) / 3; c.beginPath(); c.moveTo(cx + 20, y); c.lineTo(cx + cw - 20, y); c.stroke(); }
+    WEEKS.forEach(([wk, v], i) => {
+      const bh = ((base - top) * v) / 7200; const x = cx + 50 + i * step;
+      rr(c, x, base - bh, bw, bh, [6, 6, 0, 0]); c.fillStyle = i === WEEKS.length - 1 ? '#2F5BEA' : '#B9C9F7'; c.fill();
+      text(c, wk, x + bw / 2, base + 22, `12px ${SANS}`, '#8A93A6', 'center');
+    });
+    // table card
+    const [tx0, ty0, tw, th] = BOX.table;
+    rr(c, tx0, ty0, tw, th, 12); c.fillStyle = '#FFFFFF'; c.fill(); c.strokeStyle = '#E3E7EF'; c.stroke();
+    const cols = [tx0 + 24, tx0 + 250, tx0 + 480, tx0 + 700];
+    (zh() ? ['周', '收入', '订单', '状态'] : ['Week', 'Revenue', 'Orders', 'Status']).forEach((s, i) => text(c, s, cols[i], ty0 + 32, `600 13px ${SANS}`, '#7A8397'));
+    WEEKS.slice(-4).forEach(([wk, v, o], r) => {
+      const y = ty0 + 70 + r * 36;
+      c.fillStyle = '#EEF1F6'; c.fillRect(tx0 + 16, y - 24, tw - 32, 1);
+      text(c, wk, cols[0], y, `15px ${SANS}`, '#1F2937');
+      text(c, `$${v.toLocaleString('en-US')}`, cols[1], y, `15px ${SANS}`, '#1F2937');
+      text(c, String(o), cols[2], y, `15px ${SANS}`, '#1F2937');
+      const pend = r === 3;
+      rr(c, cols[3], y - 17, pend ? 84 : 56, 24, 12); c.fillStyle = pend ? '#FFF4E0' : '#E7F8EF'; c.fill();
+      text(c, pend ? T('Pending', '待处理') : T('Paid', '已付'), cols[3] + (pend ? 42 : 28), y, `600 12.5px ${SANS}`, pend ? '#B26A00' : '#15803D', 'center');
+    });
+  }
+
+  /* ---------------------------------------------------------------- layer 2 · the UI tree (translucent, above the screen) */
+  function drawTree(c, W, H) {
+    const G = '#45E3A2';
+    // dark glass: opaque, it would hide the screen under it; translucent, the screen shows through (R7.3)
+    c.fillStyle = 'rgba(4,20,15,.86)'; c.fillRect(0, 0, W, H);
+    c.strokeStyle = 'rgba(69,227,162,.07)'; c.lineWidth = 1;
+    for (let x = 0; x <= W; x += 40) { c.beginPath(); c.moveTo(x, 0); c.lineTo(x, H); c.stroke(); }
+    for (let y = 0; y <= H; y += 40) { c.beginPath(); c.moveTo(0, y); c.lineTo(W, y); c.stroke(); }
+    const nodes = [
+      ['window', [4, 4, 1192, 742], null], ['toolbar', BOX.toolbar, 0], ['navigation', BOX.nav, 0],
+      [T("heading 'Weekly report'", "heading '周报'"), BOX.heading, 0], [T("button 'Run report'", "button '生成报告'"), BOX.run, 0],
+      ['group · KPI', [240, 156, 930, 88], 0], [T("image 'Revenue by week'", "image '每周收入'"), BOX.chart, 0], ['table · 4 rows', BOX.table, 0],
+    ];
+    const at = (b) => [b[0] + 14, b[1] + 14];
+    // edges: parent → child (curves), drawn first
+    c.lineWidth = 2.5; c.strokeStyle = 'rgba(69,227,162,.6)';
+    nodes.forEach(([, b, p]) => {
+      if (p == null) return;
+      const [x0, y0] = at(nodes[p][1]); const [x1, y1] = at(b);
+      c.beginPath(); c.moveTo(x0, y0); c.bezierCurveTo(x0, (y0 + y1) / 2 + 40, x1 - 60, y1, x1, y1); c.stroke();
+    });
+    nodes.forEach(([role, b], i) => {
+      const [x, y, w, h] = b;
+      const target = i === 4;
+      c.save();
+      c.setLineDash(target ? [] : [9, 6]);
+      c.lineWidth = target ? 4 : 2.5;
+      c.strokeStyle = target ? '#C9FFE8' : 'rgba(69,227,162,.9)';
+      if (target) { c.shadowColor = G; c.shadowBlur = 14; }
+      rr(c, x + 2, y + 2, w - 4, h - 4, 8); c.stroke();
+      c.restore();
+      if (target) { rr(c, x + 2, y + 2, w - 4, h - 4, 8); c.fillStyle = 'rgba(69,227,162,.18)'; c.fill(); }
+      // role tag
+      c.font = `600 15px ${MONO}`;
+      const tw = c.measureText(role).width + 18;
+      const tx0 = target ? x + w - tw : x + 26; const ty0 = target ? y + h + 8 : y + 6;
+      rr(c, tx0, ty0, tw, 26, 6); c.fillStyle = 'rgba(6,22,16,.88)'; c.fill(); c.strokeStyle = 'rgba(69,227,162,.7)'; c.lineWidth = 1; c.stroke();
+      text(c, role, tx0 + 9, ty0 + 18, `600 15px ${MONO}`, target ? '#C9FFE8' : G);
+      // node dot
+      const [nx, ny] = at(b);
+      c.save(); c.shadowColor = G; c.shadowBlur = 10;
+      c.beginPath(); c.arc(nx, ny, target ? 8 : 6, 0, Math.PI * 2); c.fillStyle = target ? '#FFFFFF' : G; c.fill();
+      c.restore();
+    });
+  }
+
+  /* ---------------------------------------------------------------- layer 3 · events (the pointer's path to the button) */
+  function drawEvents(c) {
+    const A = '#FFB454';
+    const P = [[300, 640], [520, 560], [760, 330], [1090, 101]];
+    // the path, fading in
+    const g = c.createLinearGradient(P[0][0], P[0][1], P[3][0], P[3][1]);
+    g.addColorStop(0, 'rgba(255,180,84,0)'); g.addColorStop(1, 'rgba(255,180,84,1)');
+    c.lineWidth = 5; c.lineCap = 'round'; c.strokeStyle = g;
+    c.beginPath(); c.moveTo(...P[0]); c.bezierCurveTo(...P[1], ...P[2], ...P[3]); c.stroke();
+    // samples along the path with timestamps
+    const bz = (t, a, b, d, e) => (1 - t) ** 3 * a + 3 * (1 - t) ** 2 * t * b + 3 * (1 - t) * t * t * d + t ** 3 * e;
+    [0.25, 0.5, 0.75].forEach((t, i) => {
+      const x = bz(t, P[0][0], P[1][0], P[2][0], P[3][0]); const y = bz(t, P[0][1], P[1][1], P[2][1], P[3][1]);
+      c.beginPath(); c.arc(x, y, 7, 0, Math.PI * 2); c.fillStyle = A; c.fill();
+      text(c, `+${(0.14 * (i + 1)).toFixed(2)} s`, x + 16, y + 6, `600 16px ${MONO}`, A);
+    });
+    // the click: ripples on the button
+    [[22, 0.95], [38, 0.6], [56, 0.32]].forEach(([r, a]) => { c.beginPath(); c.arc(1090, 101, r, 0, Math.PI * 2); c.strokeStyle = `rgba(255,180,84,${a})`; c.lineWidth = 3; c.stroke(); });
+    // pointer arrow
+    c.save(); c.translate(1094, 106); c.beginPath(); c.moveTo(0, 0); c.lineTo(0, 30); c.lineTo(8, 23); c.lineTo(14, 36); c.lineTo(20, 33); c.lineTo(14, 21); c.lineTo(24, 21); c.closePath();
+    c.fillStyle = '#FFFFFF'; c.fill(); c.lineWidth = 2; c.strokeStyle = '#1B1206'; c.stroke(); c.restore();
+    // event log
+    const lx = 610; const ly = 470;
+    rr(c, lx, ly, 560, 236, 14); c.fillStyle = 'rgba(24,16,4,.86)'; c.fill(); c.strokeStyle = 'rgba(255,180,84,.55)'; c.lineWidth = 1.5; c.stroke();
+    text(c, T('EVENT LOG', '事件日志'), lx + 22, ly + 34, `700 14px ${MONO}`, 'rgba(255,180,84,.8)');
+    const rows = [['02.114', 'pointermove', '(812, 344)'], ['02.530', 'pointerdown', 'button#run'], ['02.611', 'click', 'button#run'], ['02.612', 'dispatch', 'runReport()']];
+    rows.forEach(([t, ev, tg], i) => {
+      const y = ly + 76 + i * 40; const hot = i === 2;
+      if (hot) { rr(c, lx + 12, y - 26, 536, 36, 8); c.fillStyle = 'rgba(255,180,84,.16)'; c.fill(); }
+      text(c, t, lx + 22, y, `17px ${MONO}`, 'rgba(255,224,180,.62)');
+      text(c, ev, lx + 120, y, `600 17px ${MONO}`, hot ? '#FFFFFF' : A);
+      text(c, tg, lx + 300, y, `17px ${MONO}`, '#FFE7C2');
+    });
+  }
+
+  /* ---------------------------------------------------------------- layer 4 · code (an editor, opaque) */
+  const CODE = [
+    ['c', '// report.js · the handler behind the Run button'],
+    ['', ''],
+    ['k', 'import', 'p', ' { ', 'v', 'query', 'p', ' } ', 'k', 'from', 's', " './data.js'", 'p', ';'],
+    ['', ''],
+    ['v', 'button', 'p', '(', 's', "'#run'", 'p', ')', 'X', ".on('click'", 'p', ', ', 'k', 'async', 'p', ' () => {'],
+    ['p', '  ', 'k', 'const', 'v', ' rows', 'p', ' = ', 'k', 'await', 'f', ' query', 'p', '(', 's', "'revenue'", 'p', ', { weeks: ', 'n', '8', 'p', ' });'],
+    ['v', '  chart', 'p', '.', 'f', 'render', 'p', '(rows.', 'f', 'map', 'p', '(r => r.total));'],
+    ['v', '  table', 'p', '.', 'f', 'fill', 'p', '(rows.', 'f', 'slice', 'p', '(', 'n', '-4', 'p', '));'],
+    ['f', '  toast', 'p', '(', 's', "'Report ready'", 'p', ');'],
+    ['p', '});'],
+  ];
+  const INK = { k: '#B9A2FF', f: '#7EE8FF', s: '#8FE3B5', n: '#FFC27A', c: '#6B7390', p: '#B3B8CC', v: '#E6E9F5', X: '#FFD9A3', '': '#B3B8CC' };
+  function drawCode(c, W, H) {
+    c.fillStyle = '#0B0E17'; c.fillRect(0, 0, W, H);
+    c.fillStyle = '#121624'; c.fillRect(0, 0, W, 48);
+    [['report.js', true], ['data.js', false], ['chart.js', false]].forEach(([n, on], i) => {
+      const x = 16 + i * 150;
+      if (on) { c.fillStyle = '#0B0E17'; c.fillRect(x, 8, 140, 40); c.fillStyle = '#7AA8FF'; c.fillRect(x, 8, 140, 2); }
+      text(c, n, x + 18, 34, `${on ? 600 : 400} 15px ${MONO}`, on ? '#E6E9F5' : '#767C93');
+    });
+    // the intent above the code, in plain words
+    rr(c, 32, 70, W - 64, 46, 10); c.fillStyle = 'rgba(94,234,255,.08)'; c.fill(); c.strokeStyle = 'rgba(94,234,255,.32)'; c.lineWidth = 1; c.stroke();
+    text(c, T('intent', '意图'), 52, 100, `700 14px ${MONO}`, '#5EEAFF');
+    text(c, T('On Run: query 8 weeks, then redraw the chart and the table', '点击“生成报告”：查询 8 周数据，再重绘图表和表格'), 130, 100, `16px ${SANS}`, '#D8DCEB');
+    const x0 = 96; let y = 170; const lh = 40;
+    c.font = `19px ${MONO}`;
+    CODE.forEach((tokens, i) => {
+      text(c, String(i + 1).padStart(2, ' '), 64, y, `17px ${MONO}`, '#3E4560', 'right');
+      let x = x0;
+      for (let k = 0; k < tokens.length; k += 2) {
+        const kind = tokens[k]; const s = tokens[k + 1];
+        c.font = `${kind === 'k' ? 600 : 400} 19px ${MONO}`;
+        const w = c.measureText(s).width;
+        if (kind === 'X') {   // the decisive token: a glowing outline
+          c.save(); c.shadowColor = '#FFB454'; c.shadowBlur = 16; rr(c, x - 6, y - 26, w + 12, 36, 7); c.strokeStyle = '#FFB454'; c.lineWidth = 2; c.stroke(); c.restore();
+        }
+        c.fillStyle = INK[kind]; c.textAlign = 'left'; c.fillText(s, x, y);
+        x += w;
+      }
+      y += lh;
+    });
+    c.fillStyle = '#121624'; c.fillRect(0, H - 34, W, 34);
+    text(c, T('JavaScript · UTF-8 · Ln 5, Col 13', 'JavaScript · UTF-8 · 第 5 行，第 13 列'), 24, H - 12, `13px ${MONO}`, '#767C93');
+  }
+
+  /* ---------------------------------------------------------------- layer 5 · data (the rows the query returned) */
+  function drawData(c, W, H) {
+    const V = '#A98BFF';
+    rr(c, 0, 0, W, H, 0); c.fillStyle = 'rgba(12,10,26,.94)'; c.fill();
+    text(c, 'state.rows', 40, 62, `700 26px ${MONO}`, '#EDE6FF');
+    text(c, T('8 items · from query(\'revenue\') in 38 ms', '8 条 · 来自 query(\'revenue\')，耗时 38 ms'), 40, 94, `16px ${SANS}`, 'rgba(201,191,255,.7)');
+    const cols = [56, 190, 370, 540];
+    (zh() ? ['周', '收入', '订单', ''] : ['week', 'total', 'orders', '']).forEach((s, i) => text(c, s, cols[i], 150, `600 15px ${MONO}`, 'rgba(201,191,255,.6)'));
+    WEEKS.forEach(([wk, v, o], i) => {
+      const y = 196 + i * 62;
+      if (i === WEEKS.length - 1) { rr(c, 34, y - 34, W - 68, 52, 10); c.fillStyle = 'rgba(169,139,255,.16)'; c.fill(); c.strokeStyle = 'rgba(169,139,255,.6)'; c.lineWidth = 1.5; c.stroke(); }
+      text(c, `'${wk}'`, cols[0], y, `20px ${MONO}`, '#8FE3B5');
+      text(c, String(v), cols[1], y, `20px ${MONO}`, '#FFC27A');
+      text(c, String(o), cols[2], y, `20px ${MONO}`, '#FFC27A');
+      const bw = ((W - cols[3] - 70) * v) / 7200;
+      rr(c, cols[3], y - 18, bw, 20, 5); const g = c.createLinearGradient(cols[3], 0, cols[3] + bw, 0);
+      g.addColorStop(0, 'rgba(169,139,255,.25)'); g.addColorStop(1, V); c.fillStyle = g; c.fill();
+    });
+  }
+
+  /* ---------------------------------------------------------------- layer 6 · runtime (where the request goes) */
+  function drawRuntime(c, W, H) {
+    const Y = '#FFD25E';
+    c.fillStyle = 'rgba(20,16,4,.55)'; c.fillRect(0, 0, W, H);
+    const boxes = [['Browser', T('runReport()', 'runReport()'), 60, 120], ['API', 'GET /report', 340, 120], ['Query engine', "query('revenue')", 620, 120], ['Database', 'sales.weekly', 900, 120]];
+    const bw = 240; const bh = 120;
+    boxes.forEach(([n, sub, x, y], i) => {
+      rr(c, x, y, bw, bh, 14); c.fillStyle = 'rgba(30,24,6,.92)'; c.fill(); c.strokeStyle = 'rgba(255,210,94,.75)'; c.lineWidth = 2; c.stroke();
+      text(c, n, x + 22, y + 50, `700 22px ${SANS}`, '#FFF4D6');
+      text(c, sub, x + 22, y + 86, `16px ${MONO}`, Y);
+      if (i < boxes.length - 1) {
+        const ax = x + bw + 6; const ay = y + bh / 2;
+        c.strokeStyle = Y; c.lineWidth = 3; c.setLineDash([10, 8]); c.beginPath(); c.moveTo(ax, ay); c.lineTo(ax + 28, ay); c.stroke(); c.setLineDash([]);
+        c.beginPath(); c.moveTo(ax + 36, ay); c.lineTo(ax + 24, ay - 8); c.lineTo(ax + 24, ay + 8); c.closePath(); c.fillStyle = Y; c.fill();
+      }
+    });
+    // a waterfall of the request
+    text(c, T('REQUEST TRACE · 64 ms', '请求链路 · 64 ms'), 60, 340, `700 15px ${MONO}`, 'rgba(255,210,94,.8)');
+    const spans = [['Browser', 0, 64], ['API', 6, 58], ['Query engine', 12, 52], ['Database', 14, 38]];
+    const sx = 260; const sw = 860;
+    for (let k = 0; k <= 4; k++) { const x = sx + (sw * k) / 4; c.fillStyle = 'rgba(255,210,94,.14)'; c.fillRect(x, 362, 1, 300); text(c, `${k * 16} ms`, x, 690, `13px ${MONO}`, 'rgba(255,210,94,.6)', 'center'); }
+    spans.forEach(([n, t0, t1], i) => {
+      const y = 380 + i * 70;
+      text(c, n, 60, y + 34, `600 18px ${SANS}`, '#FFF4D6');
+      rr(c, sx + (sw * t0) / 64, y + 10, (sw * (t1 - t0)) / 64, 34, 8);
+      c.fillStyle = `rgba(255,210,94,${0.85 - i * 0.15})`; c.fill();
+    });
+  }
+
+
+  /* ---------------------------------------------------------------- the part: one question, one Play, one option */
+  const LAYERS = [
+    { id: 'screen', label: { en: 'App screen', zh: '应用界面' }, sub: { en: 'what the user sees', zh: '用户看到的画面' }, tint: 'accent', w: 1200, h: 750, draw: drawScreen,
+      cap: L('The app screen: what the user sees and clicks.', '应用界面：用户看到并点击的画面。'), tone: 'info' },
+    { id: 'ui', label: { en: 'UI tree', zh: 'UI 树' }, sub: { en: 'roles and bounds', zh: '角色与边界' }, tint: 'ok', w: 1200, h: 750, draw: drawTree, opacity: 0.6,
+      cap: L('The UI tree names every element and its bounds.', 'UI 树为每个元素标出角色和边界。'), tone: 'ok' },
+    { id: 'events', label: { en: 'Events', zh: '事件' }, sub: { en: 'pointer path · click', zh: '指针路径 · 点击' }, tint: 'user', w: 1200, h: 750, draw: drawEvents,
+      cap: L('Events: the pointer travels to Run and clicks.', '事件：指针移到“生成报告”并点击。'), tone: 'user' },
+    { id: 'code', label: { en: 'Code', zh: '代码' }, sub: { en: "on('click') handler", zh: "on('click') 处理函数" }, tint: 'info', w: 1200, h: 750, draw: drawCode,
+      cap: L('Code: the click handler queries eight weeks.', '代码：点击处理函数查询 8 周数据。'), tone: 'info' },
+    { id: 'data', label: { en: 'Data', zh: '数据' }, sub: { en: 'state.rows · 8 items', zh: 'state.rows · 8 条' }, tint: 'agent', w: 1200, h: 750, draw: drawData,
+      cap: L('Data: eight rows come back from the query.', '数据：查询返回 8 行结果。'), tone: 'agent' },
+    { id: 'runtime', label: { en: 'Runtime', zh: '运行时' }, sub: { en: 'request trace · 64 ms', zh: '请求链路 · 64 ms' }, tint: 'warn', w: 1200, h: 750, draw: drawRuntime,
+      cap: L('Runtime: the request crosses four services in 64 ms.', '运行时：请求在 64 ms 内经过四个服务。'), tone: 'warn' },
+  ];
+  const nameOf = (id) => { const x = LAYERS.find((l) => l.id === id); return x ? T(x.label.en, x.label.zh) : '—'; };
+
+  const P = PM.part(document.getElementById('d3-part'), {
+    id: 'layers',
+    eyebrow: L('Example · Exploded view', '示例 · 拆解视图'),
+    q: L('What lies under one app screen?', '一个应用界面之下有什么？'),
+    lead: L('Six layers of one report app, each drawn on a canvas.', '一个报表应用的六个图层，每层都画在 canvas 上。'),
+    takeaway: L('The screen is only the face: one click runs down through events, code, data and the runtime.',
+      '界面只是最外面的一层：一次点击依次穿过事件、代码、数据和运行时。'),
+    source: [{ kind: 'sim', text: L('Illustrative app, drawn for the kit demo', '为组件演示绘制的示意应用') }],
+    folds: [
+      {
+        title: L('How this view is built', '这个视图怎么写'),
+        teaser: L('One call: the layers in tour order, and the physical stack.', '一次调用：按导览顺序给出图层，再给出物理叠放顺序。'),
+        render(el) { PM.code(el, { lang: 'js', title: 'layers.js', src: SRC, focus: ["stackOrder: ['ui', 'screen'"] }); },
+      },
+      {
+        title: L('Tour order and physical order', '导览顺序与物理顺序'),
+        teaser: L('The UI tree sits above the screen, yet the tour starts at the screen.', 'UI 树叠在界面之上，导览却从界面开始。'),
+        render(el) {
+          el.append(
+            L('The layers array is the tour order: badge numbers, keys 1 to 6 and the guided pass follow it. stackOrder is the physical order, top first. Here the UI tree sits above the screen and is translucent, so the screen shows through it.',
+              'layers 数组就是导览顺序：编号、数字键 1 到 6 和导览都按它走。stackOrder 是物理叠放顺序，从上到下。这里 UI 树叠在界面之上并且半透明，界面透过它可见。', 'p'),
+            L('At rest the view shows the first tour layer, the familiar one. Layers above it appear as the stack comes apart.',
+              '静止时视图显示导览的第一层，也就是读者熟悉的那一层。叠在它上面的图层在拆开时才出现。', 'p'));
+        },
+      },
+    ],
+  });
+
+  const ready = PM.layers3d(P.scene, {
+    layers: LAYERS,
+    stackOrder: ['ui', 'screen', 'events', 'code', 'data', 'runtime'],   // physical: the UI tree above the screen
+    onPick(id) { ro.set('picked', nameOf(id)); if (player.state === 'running') player.pause(); sync(); },
+    onFocus() { sync(); },
+    onUserCam() { if (player.state === 'running') player.pause(); sync(); },
+  });
+  const view = ready.view;
+  window.demoView = view;   // QA hook
+
+  const ro = PM.readouts(P, [
+    { id: 'layers', label: L('Layers', '图层') },
+    { id: 'picked', label: L('Picked layer', '选中的图层') },
+  ]);
+
+  PM.toggle(P, {
+    label: L('Translucent UI tree', 'UI 树半透明'),
+    value: true,
+    onChange(v) { view.setOpacity('ui', v ? 0.6 : 1); sync(); },
+  });
+
+  // the guided pass on the virtual clock: the explode is a tween (snapped each tick), so a seek lands exactly
+  const player = PM.player(P, {
+    label: L('Take it apart', '拆开看看'),
+    reset() {
+      view.light(null, { snap: true });
+      view.focus(null, { snap: true });
+      view.reset({ snap: true });
+      view.explode(0, { snap: true });
+      ro.reset();
+    },
+    async run(ctx) {
+      view.light('screen', { snap: ctx.seeking });
+      ctx.narrate(L('This is the screen the user sees.', '这是用户看到的界面。'));
+      await ctx.sleep(1200);
+      view.light(null, { snap: ctx.seeking });
+      ctx.narrate(L('Take it apart: six layers come out.', '拆开：六个图层逐层分开。'));
+      await ctx.tween(1800, (k) => view.explode(k, { snap: true }), PM.ease.inOut);
+      for (const ly of LAYERS) {
+        view.light(ly.id, { snap: ctx.seeking });
+        ctx.mark(L(ly.label.en, ly.label.zh), ly.tone);
+        ctx.narrate(ly.cap, ly.tone);
+        ro.set('layers', LAYERS.indexOf(ly) + 1);
+        await ctx.sleep(1500);
+      }
+      view.light(null, { snap: ctx.seeking });
+      ctx.narrate(L('Drag to turn it; click a layer to fly to it.', '拖动可以旋转；点击图层，镜头会飞过去。'));
+      await ctx.sleep(900);
+    },
+  });
+
+  /* ---------------------------------------------------------------- API panel: the same calls a script makes */
+  const calls = document.getElementById('d3-calls');
+  const stateEl = document.getElementById('d3-state');
+  const nextOf = (id) => LAYERS[(LAYERS.findIndex((l) => l.id === id) + 1) % (LAYERS.length + 1)] || null;
+  const btn = (id, label, fn) => { const b = PM.button(calls, label, { kind: 'secondary', small: true, onClick: () => { fn(); sync(); } }); b.id = id; return b; };
+  btn('d3-explode', 'view.explode(1)', () => { const apart = view.state().explode > 0.5; view.explode(apart ? 0 : 1, { slow: !apart }); if (apart) view.reset(); });
+  btn('d3-focus', "view.focus('screen')", () => { const n = nextOf(view.state().focus); if (n && view.state().explode < 0.25) view.explode(1); view.focus(n ? n.id : null); });
+  btn('d3-light', "view.light('screen')", () => { const n = nextOf(view.state().lit); view.light(n ? n.id : null); });
+  btn('d3-glass', "view.setOpacity('ui', 1)", () => { const a = view.state().opacity.ui < 0.95 ? 1 : 0.6; view.setOpacity('ui', a); });
+  btn('d3-reset', 'view.reset()', () => view.reset());
+  btn('d3-redraw', 'view.redraw()', () => view.redraw());
+  function sync() {
+    const st = view.state();
+    const apart = st.explode > 0.5;
+    const nf = nextOf(st.focus);
+    const nl = nextOf(st.lit);
+    document.querySelector('#d3-explode .pm-btn-label').textContent = `view.explode(${apart ? 0 : 1})`;
+    document.querySelector('#d3-focus .pm-btn-label').textContent = `view.focus(${nf ? `'${nf.id}'` : 'null'})`;
+    document.querySelector('#d3-light .pm-btn-label').textContent = `view.light(${nl ? `'${nl.id}'` : 'null'})`;
+    document.querySelector('#d3-glass .pm-btn-label').textContent = `view.setOpacity('ui', ${st.opacity.ui < 0.95 ? 1 : 0.6})`;
+    const b = (v) => `<b>${v}</b>`;
+    stateEl.innerHTML = `view.state() → kind ${b(st.kind)} · explode ${b(st.explode.toFixed(2))} · focus ${b(st.focus ? `'${st.focus}'` : 'null')} · lit ${b(st.lit ? `'${st.lit}'` : 'null')} · ui opacity ${b(st.opacity.ui)}${st.fallbackReason ? ` · fallback ${b(st.fallbackReason)}` : ''}`;
+  }
+  ['pm:state'].forEach((ev) => P.el.addEventListener(ev, sync));
+  PM.onLang(sync);
+  PM.langToggle(document.getElementById('d3-lang'));
+  ready.then(sync);
+  sync();
+
+  const SRC = [
+    "const view = await PM.layers3d(P.scene, {",
+    "  layers: [                                   // tour order: badges, keys 1–6 and the guided pass",
+    "    {id: 'screen', label: {en: 'App screen', zh: '应用界面'}, tint: 'accent', w: 1200, h: 750, draw: drawScreen},",
+    "    {id: 'ui', label: 'UI tree', tint: 'ok', w: 1200, h: 750, draw: drawTree, opacity: 0.6},",
+    "    …",
+    "  ],",
+    "  stackOrder: ['ui', 'screen', 'events', 'code', 'data', 'runtime'],   // physical order, top first",
+    "  onPick(id) { ro.set('picked', id); },",
+    "});",
+    "",
+    "// in a player: the explode is a tween, so a seek lands exactly",
+    "await ctx.tween(1800, (k) => view.explode(k, {snap: true}));",
+    "view.light('code', {snap: ctx.seeking});",
+  ].join('\n');
+  PM.code(document.getElementById('d3-src'), {
+    lang: 'js', title: 'view API',
+    src: [
+      "view.explode(k, {snap, slow})     // 0 = the flat face, 1 = apart; damped unless snap",
+      "view.focus(id | null, {snap})     // fly to one layer: it rises, the layers above lift away",
+      "view.light(id | null, {snap})     // highlight one layer in the overview (a guided pass)",
+      "view.setOpacity(id, a, {snap})    // a translucent layer shows the layer under it",
+      "view.redraw(id?)                  // call draw() again and upload it (language changes do this)",
+      "view.reset({snap})                // back to the overview camera; explode and opacity stay",
+      "view.pick(id)  view.hover(id)  view.orbit(dTheta, dPhi)  view.zoom(f)",
+      "view.anchors()  view.pickAt(x, y)  view.state()  view.setVisible(v)  view.dispose()",
+    ].join('\n'),
+    lineNumbers: false,
+  });
+})();
+</script>
+</body>
+</html>

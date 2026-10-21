@@ -1,0 +1,159 @@
+/* PLAYME lab kit · playme-3d.css — the exploded 3D view (PM.layers3d). Scope: .pm; classes pm-l3d-*. Colours are kit
+ * tokens only; each layer's tint arrives as --pm-l3d-c (set per label, leader and fallback sheet by playme-3d.js). */
+
+.pm .pm-l3d, .pm.pm-l3d { position: relative; display: grid; min-width: 0; }
+.pm .pm-l3d [hidden], .pm.pm-l3d [hidden] { display: none !important; }
+
+/* ------------------------------------------------------------------ the view (the 3D canvas and everything on it) */
+.pm .pm-l3d-view {
+  position: relative; width: 100%; min-width: 0; min-height: 300px; max-height: 640px;
+  aspect-ratio: var(--pm-l3d-aspect, 16 / 9); overflow: hidden; outline-offset: -3px; border-radius: inherit;
+  /* a soft pool of light behind the stack; the page shows through everywhere else */
+  background: radial-gradient(58% 64% at 40% 56%, color-mix(in srgb, var(--pm-accent) 7%, transparent), transparent 72%);
+  -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent;
+}
+.pm .pm-l3d-view.is-sized { aspect-ratio: auto; max-height: none; }
+.pm .pm-l3d.is-compact .pm-l3d-view:not(.is-sized) { aspect-ratio: var(--pm-l3d-aspect-compact, 10 / 11); min-height: 320px; }
+.pm .pm-l3d-view:focus { outline: none; }
+.pm .pm-l3d-view:focus-visible { outline: 2px solid var(--pm-accent); }
+.pm .pm-l3d-canvas { position: absolute; inset: 0; display: block; width: 100%; height: 100%; touch-action: pan-y; cursor: grab; }
+.pm .pm-l3d-canvas.is-dragging { cursor: grabbing !important; }
+.pm .pm-l3d-leaders { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+
+/* leader lines in the layer's tint; the focused / hovered one is bright, a lit one carries a travelling signal */
+.pm .pm-l3d-leaders path { fill: none; stroke: var(--pm-l3d-c); stroke-width: 1; opacity: .5; }
+.pm .pm-l3d-leaders circle { fill: var(--pm-l3d-c); opacity: .85; }
+.pm .pm-l3d-leaders .is-on { opacity: 1; stroke-width: 1.4; filter: drop-shadow(0 0 4px var(--pm-l3d-c)); }
+.pm .pm-l3d-leaders path.is-lit { stroke-width: 1.6; stroke-dasharray: 5 4; animation: pm-l3d-signal .9s linear infinite; }
+@keyframes pm-l3d-signal { to { stroke-dashoffset: -18; } }
+
+/* placeholder while three.js loads: the flat composite (what explode = 0 shows), left of the label column */
+.pm .pm-l3d-placeholder {
+  position: absolute; inset: 0 var(--pm-l3d-reserve, 0px) 0 0; display: grid; place-items: center;
+  padding: clamp(14px, 6%, 34px); pointer-events: none;
+}
+.pm .pm-l3d-phimg {
+  display: block; max-width: 100%; max-height: 100%; width: auto; height: auto; border-radius: 2px;
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--pm-l3d-c, var(--pm-accent)) 70%, transparent),
+    0 0 34px -6px var(--pm-l3d-c, var(--pm-accent));
+}
+.pm .pm-l3d-loading {
+  position: absolute; left: 0; right: 0; bottom: 12px; margin: 0; text-align: center;
+  font: 500 11.5px/1.4 var(--pm-mono); letter-spacing: .06em; color: var(--pm-mu);
+}
+
+/* ------------------------------------------------------------------ labels: the in-scene list of layers (targets) */
+.pm .pm-l3d-labels { position: absolute; inset: 0; pointer-events: none; }
+.pm .pm-l3d-label {
+  --pm-l3d-c: var(--pm-accent);
+  position: absolute; left: 0; top: 0; z-index: 2; display: flex; align-items: center; gap: 9px; min-width: 0; min-height: 38px;
+  box-sizing: border-box; margin: 0; padding: 5px 10px 5px 6px; pointer-events: auto; cursor: pointer; text-align: left;
+  font: inherit; color: var(--pm-hi);
+  border: 1px solid var(--pm-line-2); border-radius: var(--pm-r);
+  background: var(--pm-panel); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+  transition: border-color .2s, background-color .2s, box-shadow .25s;
+}
+.pm .pm-l3d-label:hover, .pm .pm-l3d-label.is-hover {
+  border-color: var(--pm-l3d-c); background: var(--pm-panel-2); box-shadow: 0 0 18px -6px var(--pm-l3d-c);
+}
+.pm .pm-l3d-label:focus { outline: none; }
+.pm .pm-l3d-label:focus-visible { outline: 2px solid var(--pm-accent); outline-offset: 3px; }
+.pm .pm-l3d-label.is-lit, .pm .pm-l3d-label[aria-pressed="true"] {
+  border-color: var(--pm-l3d-c); background: var(--pm-panel-2);
+  box-shadow: inset 2px 0 0 var(--pm-l3d-c), 0 0 22px -6px var(--pm-l3d-c);
+}
+.pm .pm-l3d-badge {
+  flex: none; display: grid; place-items: center; width: 22px; height: 22px; box-sizing: border-box; border-radius: var(--pm-r-sm);
+  font: 700 12px/1 var(--pm-mono); font-variant-numeric: tabular-nums; color: var(--pm-bg); background: var(--pm-l3d-c);
+}
+.pm .pm-l3d-label.is-lit .pm-l3d-badge, .pm .pm-l3d-label[aria-pressed="true"] .pm-l3d-badge { box-shadow: 0 0 12px var(--pm-l3d-c); }
+.pm .pm-l3d-labeltext { display: grid; gap: 1px; min-width: 0; }
+.pm .pm-l3d-name { font: 600 13px/1.3 var(--pm-sans); color: var(--pm-hi); overflow-wrap: anywhere; }
+.pm .pm-l3d-sub { font: 11.5px/1.35 var(--pm-mono); color: var(--pm-tx); overflow-wrap: anywhere; }
+html[lang^="zh"] .pm .pm-l3d-name { word-break: keep-all; overflow-wrap: anywhere; }
+/* a column that cannot fit its sub lines shows names only */
+.pm .pm-l3d-labels.is-names .pm-l3d-sub { display: none; }
+.pm .pm-l3d-labels.is-names .pm-l3d-label { min-height: 32px; }
+/* narrow views: number badges only; the legend under the view names them */
+.pm .pm-l3d.is-compact .pm-l3d-label { min-height: 0; height: 32px; padding: 4px; gap: 0; justify-content: center; }
+.pm .pm-l3d.is-compact .pm-l3d-labeltext { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* the legend (narrow views only): plain text, not interactive */
+.pm .pm-l3d-legend { display: none; }
+.pm .pm-l3d.is-compact .pm-l3d-legend {
+  display: flex; flex-wrap: wrap; gap: 4px 14px; margin: 0; padding: 6px 2px 2px;
+  font: 12px/1.45 var(--pm-sans); color: var(--pm-tx);
+}
+.pm .pm-l3d-legenditem { display: inline-flex; align-items: baseline; gap: 5px; white-space: nowrap; }
+.pm .pm-l3d-legendnum { font: 700 11.5px/1 var(--pm-mono); color: var(--pm-l3d-c); }
+
+/* ------------------------------------------------------------------ scene corner: reset view, hint, fallback note */
+.pm .pm-l3d-reset {
+  position: absolute; left: 10px; top: 10px; z-index: 3; display: inline-flex; align-items: center; gap: 6px;
+  height: 30px; box-sizing: border-box; margin: 0; padding: 0 11px 0 8px; cursor: pointer;
+  font: 500 12.5px/1 var(--pm-sans); color: var(--pm-tx);
+  border: 1px solid var(--pm-line-2); border-radius: 999px;
+  background: var(--pm-panel); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+  animation: pm-l3d-in .25s ease-out;
+}
+.pm .pm-l3d-reset:hover { color: var(--pm-hi); border-color: var(--pm-accent); background: var(--pm-panel-2); }
+.pm .pm-l3d-reset:focus { outline: none; }
+.pm .pm-l3d-reset:focus-visible { outline: 2px solid var(--pm-accent); outline-offset: 3px; }
+.pm .pm-l3d-reset-ico { display: inline-grid; width: 14px; height: 14px; color: var(--pm-accent); }
+.pm .pm-l3d-reset-ico svg { width: 14px; height: 14px; }
+@keyframes pm-l3d-in { from { opacity: 0; transform: translateY(-3px); } to { opacity: 1; transform: none; } }
+.pm .pm-l3d.is-compact .pm-l3d-reset { padding: 0 8px; }
+.pm .pm-l3d.is-compact .pm-l3d-reset-text { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+.pm .pm-l3d-hint {
+  position: absolute; left: 12px; bottom: 10px; z-index: 1; margin: 0; max-width: calc(100% - var(--pm-l3d-reserve, 0px) - 24px);
+  font: 500 11.5px/1.35 var(--pm-mono); color: var(--pm-mu); pointer-events: none;
+}
+html[lang^="zh"] .pm .pm-l3d-hint { font-family: var(--pm-sans); font-size: 12px; }
+
+.pm .pm-l3d-note {
+  position: absolute; left: 10px; top: 10px; z-index: 3; margin: 0; max-width: min(420px, calc(100% - var(--pm-l3d-reserve, 0px) - 24px));
+  padding: 6px 10px; border-left: 2px solid var(--pm-warn); background: var(--pm-panel);
+  font: 12.5px/1.5 var(--pm-sans); color: var(--pm-tx);
+}
+.pm .pm-l3d-view.is-flat .pm-l3d-reset { top: auto; bottom: 10px; }
+
+/* ------------------------------------------------------------------ CSS fallback: a preserve-3d stack, no orbit */
+.pm .pm-l3d-flat { position: absolute; inset: 0; overflow: hidden; perspective: 1700px; perspective-origin: 42% 28%; }
+.pm .pm-l3d-flat-scaler { position: absolute; left: 50%; top: 50%; width: 0; height: 0; transform-origin: 0 0; transform-style: preserve-3d; }
+.pm .pm-l3d-flat-stack {
+  position: absolute; left: 0; top: 0; transform-style: preserve-3d;
+  transform: translate(-50%, -50%) rotateX(var(--pm-l3d-tilt, 0deg)) rotateZ(var(--pm-l3d-spin, 0deg));
+}
+.pm .pm-l3d-flat-floor {
+  --pm-l3d-c: var(--pm-accent);
+  position: absolute; inset: 0; transform-style: preserve-3d; pointer-events: none;
+  transform: translateZ(calc(var(--k) * var(--pm-l3d-gap, 0px) + var(--pm-l3d-lift, 0px)));
+  transition: opacity .3s ease;
+}
+.pm .pm-l3d-flat-sheet {
+  position: absolute; pointer-events: auto; cursor: pointer;
+  outline: 1px solid color-mix(in srgb, var(--pm-l3d-c) 62%, transparent);
+  background: color-mix(in srgb, var(--pm-l3d-c) 6%, transparent);
+  box-shadow: 0 0 22px -6px var(--pm-l3d-c);
+  transition: box-shadow .25s, outline-color .25s;
+}
+.pm .pm-l3d-flat-floor.is-under .pm-l3d-flat-sheet { outline-color: transparent; box-shadow: none; background: none; }
+.pm .pm-l3d-flat-floor.is-hover .pm-l3d-flat-sheet { outline-color: var(--pm-l3d-c); box-shadow: 0 0 30px -4px var(--pm-l3d-c); }
+.pm .pm-l3d-flat-floor.is-lit .pm-l3d-flat-sheet { outline: 2px solid var(--pm-l3d-c); box-shadow: 0 0 40px -2px var(--pm-l3d-c); }
+.pm .pm-l3d-flat-sheet .pm-l3d-surface { position: absolute; inset: 0; display: block; width: 100%; height: 100%; transition: opacity .3s ease; }
+.pm .pm-l3d-flat-anchor { position: absolute; left: 100%; top: 50%; width: 1px; height: 1px; pointer-events: none; }
+.pm .pm-l3d-flat.is-reduced .pm-l3d-flat-floor, .pm .pm-l3d-flat.is-reduced .pm-l3d-surface { transition: none; }
+
+/* ------------------------------------------------------------------ reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .pm .pm-l3d-leaders path.is-lit, .pm .pm-l3d-reset { animation: none; }
+  .pm .pm-l3d-label, .pm .pm-l3d-flat-floor, .pm .pm-l3d-surface { transition: none; }
+}
+
+/* touch: finger-sized targets for the label column and the reset button */
+@media (pointer: coarse) {
+  .pm .pm-l3d-label { min-height: 40px; }
+  .pm .pm-l3d.is-compact .pm-l3d-label { height: 40px; min-width: 40px; }
+  .pm .pm-l3d-reset { min-height: 40px; }
+}

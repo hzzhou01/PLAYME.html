@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PLAYME · Your project</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Crect width=%2232%22 height=%2232%22 rx=%228%22 fill=%22%2307080E%22/%3E%3Cpath d=%22M12 10l11 6-11 6z%22 fill=%22%235EEAFF%22/%3E%3C/svg%3E">
+<script>
+/* Language before first paint: ?lang= beats the saved choice, which beats the browser language. */
+(function () {
+  var l = null;
+  try { l = new URLSearchParams(location.search).get('lang'); } catch (e) {}
+  if (!l) { try { l = localStorage.getItem('pm-lang'); } catch (e) {} }
+  if (!l) l = (navigator.language || 'en').toLowerCase().indexOf('zh') === 0 ? 'zh' : 'en';
+  document.documentElement.lang = l.indexOf('zh') === 0 ? 'zh-CN' : 'en';
+})();
+</script>
+<!-- The kit: copy skills/playme/kit/ next to this file as kit/. Keep only the files you use. -->
+<link rel="stylesheet" href="kit/fonts/fonts.css">
+<link rel="stylesheet" href="kit/playme.css">
+<link rel="stylesheet" href="kit/playme-desk.css">
+<!-- 3D exploded view: <link rel="stylesheet" href="kit/playme-3d.css"> -->
+<link rel="stylesheet" href="page.css">
+<link rel="stylesheet" href="parts/01-retry.css">
+</head>
+<body class="pm">
+<header class="page-head">
+  <div>
+    <p class="page-eyebrow" data-l-en="Interactive lab" data-l-zh="交互实验室">Interactive lab</p>
+    <h1 class="page-title" data-l-en="Your project, playable" data-l-zh="你的项目，可以上手玩">Your project, playable</h1>
+    <p class="page-lede" data-l-en="Each part asks one question. Press its button and watch the answer happen." data-l-zh="每个部件只问一个问题。按下按钮，看着答案发生。">Each part asks one question. Press its button and watch the answer happen.</p>
+  </div>
+  <span id="lang"></span>
+</header>
+
+<main id="pm-parts">
+  <!-- One slot per part, in reading order: familiar first, then the highlight, then the depth. -->
+  <div data-pm-slot="retry"></div>
+</main>
+
+<footer class="page-foot" data-l-en="Built with PLAYME" data-l-zh="使用 PLAYME 制作">Built with PLAYME</footer>
+
+<script src="kit/playme.js"></script>
+<script src="kit/playme-desk.js"></script>
+<!-- 3D exploded view (three.js loads on demand): <script src="kit/playme-3d.js"></script> -->
+<!-- Every paper number on the page comes from facts.json (PM.F(key), PM.ref(id)); bundle.py inlines it. -->
+<script type="application/json" id="pm-facts" data-src="facts.json"></script>
+<!-- One file per part. -->
+<script src="parts/01-retry.js"></script>
+<script>
+  PM.boot(() => { PM.langToggle(document.getElementById('lang')); });
+</script>
+</body>
+</html>

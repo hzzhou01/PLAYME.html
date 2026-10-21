@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PLAYME kit · Devices</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="fonts/fonts.css">
+<link rel="stylesheet" href="playme.css">
+<link rel="stylesheet" href="playme-desk.css">
+<style>
+  /* page chrome of this demo only (the kit styles the part, playme-desk.css the devices) */
+  html, body { margin: 0; background: #07080E; }
+  .demo { min-height: 100vh; padding: 40px 24px 80px; background: var(--pm-bg); color: var(--pm-tx); font: 15px/1.55 var(--pm-sans); }
+  .demo-wrap { max-width: 1180px; margin: 0 auto; }
+  .demo-top { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 12px 24px; margin-bottom: 36px; }
+  .demo h1 { margin: 0; font: 800 clamp(26px, 4vw, 40px)/1.1 var(--pm-display); color: var(--pm-hi); letter-spacing: -0.02em; }
+  .demo h1 i { font-style: normal; color: var(--pm-accent); }
+  .demo-sub { margin: 8px 0 0; max-width: 62ch; color: var(--pm-tx); }
+  .demo-sec { margin-top: 64px; }
+  .demo-eyebrow { margin: 0 0 6px; font: 500 12px/1.4 var(--pm-mono); letter-spacing: .1em; text-transform: uppercase; color: var(--pm-accent); }
+  html[lang^="zh"] .demo-eyebrow { letter-spacing: 0; }
+  .demo h2 { margin: 0 0 6px; font: 700 21px/1.3 var(--pm-sans); color: var(--pm-hi); }
+  .demo-note { margin: 0 0 18px; max-width: 70ch; font-size: 14px; color: var(--pm-mu); }
+  .demo-stage { padding: clamp(14px, 3vw, 36px) clamp(10px, 4vw, 48px) clamp(18px, 3vw, 34px); border: 1px solid var(--pm-line); border-radius: var(--pm-r-lg); background: radial-gradient(120% 90% at 50% 0%, rgba(94,234,255,.06), transparent 60%), var(--pm-bg-2); }
+  .demo-grid { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr); gap: 28px; align-items: center; }
+  .demo-grid-2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); gap: 28px; align-items: center; }
+  @media (max-width: 820px) { .demo-grid, .demo-grid-2 { grid-template-columns: minmax(0, 1fr); } }
+  .demo-cap { margin: 12px 0 0; text-align: center; font: 12.5px/1.4 var(--pm-mono); color: var(--pm-mu); overflow-wrap: anywhere; }
+  .demo .pm-scene { padding: clamp(8px, 2vw, 24px) clamp(0px, 3vw, 40px) clamp(10px, 2vw, 22px); }
+
+  /* simulated web pages (light, like real screens; they live inside .pm-screen) */
+  .site { height: 100%; display: flex; flex-direction: column; background: #f6f7fb; color: #1b1e2b; font-family: var(--pm-s-font); }
+  .site-head { flex: none; display: flex; align-items: center; gap: 16px; padding: 12px 22px; background: #fff; border-bottom: 1px solid #e6e8ee; }
+  .site-logo { font-weight: 800; font-size: 19px; letter-spacing: -.02em; color: #0d63d9; }
+  .site-logo b { color: #ff6a3d; font-weight: 800; }
+  .site-nav { display: flex; gap: 16px; margin-left: auto; font-size: 13px; color: #4a5163; }
+  .site-search { flex: none; display: flex; gap: 8px; padding: 14px 22px 4px; }
+  .site-field { flex: 1; min-width: 0; padding: 8px 12px; border: 1px solid #d5d9e2; border-radius: 9px; background: #fff; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .site-field small { display: block; font-size: 10.5px; color: #7b8295; }
+  .site-go { flex: none; padding: 0 18px; border-radius: 9px; background: #0d63d9; color: #fff; font-weight: 650; font-size: 13px; display: grid; place-items: center; }
+  .site-list { flex: 1; min-height: 0; overflow: hidden; padding: 10px 22px; display: flex; flex-direction: column; gap: 10px; }
+  .site-card { display: grid; grid-template-columns: 1fr auto; gap: 4px 16px; padding: 12px 16px; border: 1px solid #e3e6ec; border-radius: 12px; background: #fff; }
+  .site-card b { font-size: 14px; }
+  .site-card span { font-size: 12.5px; color: #6c7282; }
+  .site-price { grid-row: span 2; align-self: center; font-size: 18px; font-weight: 750; color: #1b1e2b; }
+  .site-card.is-picked { border-color: #0d63d9; background: #eef4ff; box-shadow: 0 0 0 2px #0d63d9; }
+  .site-card.is-picked .site-price::after { content: ' · Selected'; font-size: 12px; font-weight: 600; color: #0d63d9; }
+  .demo-browser-page { padding: clamp(14px, 3vw, 28px); font-family: var(--pm-s-font); color: #1b1e2b; }
+  .demo-browser-page h3 { margin: 0 0 6px; font-size: clamp(18px, 2.4vw, 24px); letter-spacing: -.01em; }
+  .demo-browser-page p { margin: 0 0 14px; font-size: 14px; color: #4a5163; max-width: 52ch; }
+  .demo-browser-page .tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; }
+  .demo-browser-page .tile { height: 64px; border-radius: 10px; background: linear-gradient(135deg, #e7eefc, #f3eafd); border: 1px solid #e3e6ee; }
+  .demo-browser-page .tile:nth-child(2) { background: linear-gradient(135deg, #e5f5ec, #e7f3fb); }
+  .demo-browser-page .tile:nth-child(3) { background: linear-gradient(135deg, #fdefe5, #fdeceb); }
+</style>
+<script src="playme.js"></script>
+<script src="playme-desk.js"></script>
+</head>
+<body>
+<div class="pm demo">
+  <div class="demo-wrap" id="app"></div>
+</div>
+<script>
+PM.boot(() => {
+  'use strict';
+  const { h, L } = PM;
+  const D = PM.device;
+  const app = document.getElementById('app');
+
+  /* ---- header ---- */
+  const top = h('div', { class: 'demo-top' },
+    h('div', null,
+      h('h1', null, 'PLAYME kit · ', h('i', null, 'devices')),
+      L('playme-desk.js: device frames readers recognise without a label. Every position is a logical pixel, scaled to fit.',
+        'playme-desk.js：读者无需标签就能认出的设备外框。所有位置都使用逻辑像素，并按容器缩放。', 'p', { class: 'demo-sub' })));
+  PM.langToggle(top);
+  app.append(top);
+
+  const section = (eyebrow, title, note) => {
+    const sec = h('section', { class: 'demo-sec' },
+      h('p', { class: 'demo-eyebrow' }, eyebrow),
+      L(title[0], title[1], 'h2'),
+      note ? L(note[0], note[1], 'p', { class: 'demo-note' }) : null);
+    app.appendChild(sec);
+    return sec;
+  };
+
+  /* ---- 1. a part: Mac desktop, spreadsheet behind, browser in front, two pointers, a ripple, a flash, toasts ---- */
+  const P = PM.part(app, {
+    id: 'desk-demo',
+    eyebrow: 'PM.device.mac · desk.window · desk.pointer',
+    q: { en: 'Where does a click land when it names no window?', zh: '没有指定窗口的点击会落在哪里？' },
+    takeaway: { en: 'A click that names no window goes to the front window, whoever is using it.', zh: '不指定窗口的点击会落到最前面的窗口上，不管谁正在用它。' },
+    source: [{ kind: 'sim', text: { en: 'Illustrative simulation of a shared Mac', zh: '共享 Mac 的示意模拟' } }],
+  });
+  // crop: on a phone the glass shows only the region where the story happens (same coordinates)
+  const mac = D.mac(P.scene, { menubar: { app: 'Finder', clock: 'Tue 9:41 AM' }, crop: { x: 330, y: 0, w: 930, h: 720 } });
+  const desk = mac.desk;
+  const sheet = D.sheet({
+    cols: ['Region', 'Q1', 'Q2', 'Q3', 'Q4'],
+    rows: [['North', 12840, 13210, 14100, ''], ['South', 9800, 10450, 11020, ''], ['East', 15320, 14980, 16210, ''],
+      ['West', 8720, 9130, 9640, ''], ['Total', 46680, 47770, 50970, '']],
+    colWidths: [150, 104, 104, 104, 104],
+    title: 'Q-report',
+    selected: 'E2',
+  });
+  desk.window({ id: 'report', app: 'Excel', title: 'Report.xlsx', x: 70, y: 64, w: 720, h: 500, content: sheet });
+
+  const cards = [['07:05 → 09:40', 'Direct · 3h 35m', '€118'], ['10:20 → 14:55', '1 stop · 5h 35m', '€96'],
+    ['13:45 → 16:20', 'Direct · 3h 35m', '€142'], ['18:30 → 23:10', '1 stop · 5h 40m', '€89']]
+    .map(([t, s, p]) => h('div', { class: 'site-card' }, h('b', null, t), h('span', { class: 'site-price' }, p), h('span', null, s)));
+  const site = h('div', { class: 'site' },
+    h('div', { class: 'site-head' }, h('span', { class: 'site-logo' }, 'sky', h('b', null, 'fare')), h('span', { class: 'site-nav' }, h('span', null, 'Flights'), h('span', null, 'Hotels'), h('span', null, 'Trips'))),
+    h('div', { class: 'site-search' },
+      h('span', { class: 'site-field' }, h('small', null, 'From'), 'Berlin (BER)'),
+      h('span', { class: 'site-field' }, h('small', null, 'To'), 'Lisbon (LIS)'),
+      h('span', { class: 'site-field' }, h('small', null, 'Depart'), 'Fri, Nov 14'),
+      h('span', { class: 'site-go' }, 'Search')),
+    h('div', { class: 'site-list' }, cards));
+  desk.window({
+    id: 'web', kind: 'browser', app: 'Chrome', x: 430, y: 150, w: 780, h: 560,
+    tabs: [{ title: 'Berlin → Lisbon · skyfare', url: 'https://skyfare.example/search?from=BER&to=LIS', active: true, content: site },
+      { title: 'Inbox (3)', url: 'https://mail.example/inbox' }],
+  });
+
+  const agent = desk.pointer('agent');
+  const you = desk.pointer('user');
+  const A0 = [420, 690];
+  const CLICK = [612, 404];
+  const Y0 = [1010, 600];
+  const Y1 = [960, 470];
+  agent.set(...A0);
+  you.set(...Y0);
+  const s0 = desk.snapshot();
+
+  const readouts = PM.readouts(P.outcome, [
+    { id: 'hit', label: { en: 'Click (612, 404) reached', zh: '点击 (612, 404) 到达' }, value: '—' },
+    { id: 'save', label: { en: 'Save reached', zh: '保存到达' }, value: '—' },
+  ]);
+
+  PM.player(P, {
+    reset() {
+      desk.restore(s0);
+      sheet.set('E2', '', null).select('E2');
+      cards.forEach((c) => c.classList.remove('is-picked'));
+      desk.toast({ app: 'Excel', title: 'Report.xlsx', body: { en: 'Q4 is still empty for every region.', zh: '各区域的 Q4 仍为空。' }, time: '9:41' });
+      readouts.set('hit', '—');
+      readouts.set('save', '—');
+    },
+    async run(ctx) {
+      ctx.narrate({ en: 'You compare flights in the browser.', zh: '你在浏览器里比较航班。' });
+      await ctx.tween(900, (k) => you.set(PM.lerp(Y0[0], Y1[0], k), PM.lerp(Y0[1], Y1[1], k)), PM.ease.inOut);
+      ctx.narrate({ en: 'The agent clicks (612, 404) and names no window.', zh: '智能体点击 (612, 404)，没有指定窗口。' }, 'agent');
+      await ctx.tween(1000, (k) => agent.set(PM.lerp(A0[0], CLICK[0], k), PM.lerp(A0[1], CLICK[1], k)), PM.ease.inOut);
+      const hit = desk.windowAt(...CLICK);
+      cards[0].classList.add('is-picked');
+      ctx.mark({ en: 'The click lands in the front window', zh: '点击落在前台窗口' }, 'err');
+      readouts.set('hit', hit ? hit.app : '—', 'err');
+      await ctx.tween(800, (k) => { agent.ripple(k, 'err'); desk.flash(hit, 'err', k); });
+      ctx.narrate({ en: 'Named window: the save reaches Report.xlsx behind.', zh: '指定窗口后：保存送到后面的 Report.xlsx。' }, 'ok');
+      await ctx.sleep(400);
+      sheet.set('E2', 14980, 'ok');
+      ctx.mark({ en: 'The save lands in the back window', zh: '保存落在后台窗口' }, 'ok');
+      readouts.set('save', 'Report.xlsx', 'ok');
+      desk.toast({ app: 'Excel', title: 'Report.xlsx', body: { en: 'Saved · North Q4 = 14,980', zh: '已保存 · 北区 Q4 = 14,980' }, time: '9:42' });
+      await ctx.tween(1000, (k) => desk.flash(sheet.cell('E2'), 'ok', k));
+      await ctx.sleep(500);
+    },
+    onDone() { P.markRun(); },
+  });
+
+  /* ---- 2. browser and phone ---- */
+  const sec2 = section('PM.device.browser · PM.device.phone',
+    ['A browser and a phone, recognisable at a glance', '一眼就能认出的浏览器和手机'],
+    ['The browser is fluid: its chrome keeps a legible size and the page reflows. The phone is a 360 × 780 dp screen scaled to fit.',
+      '浏览器是流式布局：外框保持可读的大小，页面随宽度重排。手机屏幕为 360 × 780 dp，按容器缩放。']);
+  const stage2 = h('div', { class: 'demo-stage demo-grid' });
+  sec2.appendChild(stage2);
+  const colB = h('div');
+  const colP = h('div');
+  stage2.append(colB, colP);
+  const page = h('div', { class: 'demo-browser-page' },
+    L('Release notes', '版本说明', 'h3'),
+    L('Version 2.4 adds offline mode and a faster sync. Pick a plan below to see what changes.', '2.4 版加入离线模式，同步更快。选择下方的方案，查看有哪些变化。', 'p'),
+    h('div', { class: 'tiles' }, h('div', { class: 'tile' }), h('div', { class: 'tile' }), h('div', { class: 'tile' })));
+  D.browser(colB, {
+    tabs: [{ title: 'Release notes · Acme Docs', url: 'https://docs.acme.example/releases/2.4', active: true, content: page },
+      { title: 'Pricing', url: 'https://acme.example/pricing' }, { title: 'Status', url: 'https://status.acme.example' }],
+    height: 300,
+  });
+  colB.appendChild(h('p', { class: 'demo-cap' }, 'PM.device.browser(el, {tabs, url, height})'));
+  const ph = D.phone(colP, {
+    time: '9:41', app: 'Files', maxWidth: 250,
+    items: [{ title: 'Boarding pass.pdf', sub: 'Today · 412 KB' }, { title: 'Report.xlsx', sub: 'Yesterday · 88 KB' },
+      { title: 'Trip notes.docx', sub: 'Mon · 24 KB' }, { title: 'IMG_2041.jpg', sub: 'Sun · 2.1 MB' }, { title: 'Receipts', kind: 'folder', sub: '12 items' }],
+  });
+  ph.pointer('user').set(250, 316).ripple(0.38, 'user');
+  colP.appendChild(h('p', { class: 'demo-cap' }, 'PM.device.phone(el, {time, app, items})'));
+
+  /* ---- 3. terminal, and a display with a document (static ripple and toast at rest) ---- */
+  const sec3 = section('PM.device.terminal · hardware: display · PM.device.doc',
+    ['A terminal, and a Mac display you can rearrange', '终端，以及一台可以拖动窗口的 Mac 显示器'],
+    ['Drag a title bar to move a window; a click raises it. Terminal lines have kinds: cmd, out, ok, err, dim.',
+      '拖动标题栏可以移动窗口，点击会把窗口提到最前。终端的每一行都有类型：cmd、out、ok、err、dim。']);
+  const stage3 = h('div', { class: 'demo-stage demo-grid-2' });
+  sec3.appendChild(stage3);
+  const colT = h('div');
+  const colM = h('div');
+  stage3.append(colT, colM);
+  const term = D.terminal(colT, { title: 'agent — zsh — 80×24', prompt: 'agent@mac ~ %', rows: 9 });
+  term.print('python fill_report.py --window "Report.xlsx"', 'cmd');
+  term.print('opening Report.xlsx (background window)', 'dim');
+  term.print('✓ E2 = 14,980 written', 'ok');
+  term.print('✓ saved without raising the window', 'ok');
+  term.print('click(612, 404)', 'cmd');
+  term.print('✗ landed in "Berlin → Lisbon · skyfare" (front window)', 'err');
+  term.print('', 'cmd');
+  colT.appendChild(h('p', { class: 'demo-cap' }, "term.print(text, 'cmd' | 'ok' | 'err' | …)"));
+
+  const mac2 = D.mac(colM, { hardware: 'display', wallpaper: 'dusk', interactive: true, dock: ['Finder', 'Word', 'Terminal', 'Mail'],
+    icons: [{ name: 'Report.xlsx' }, { name: 'Receipts' }, { name: 'Boarding pass.pdf' }] });
+  const doc = D.doc({ title: 'Trip notes', paragraphs: [
+    'Flight BER → LIS on Friday, 07:05. Seat 14A.',
+    { text: 'To do', style: 'h1' }, { text: 'Fill Q4 in Report.xlsx', style: 'li' }, { text: 'Send receipts to finance', style: 'li' },
+    { text: 'Drafted on the shared Mac.', style: 'muted' }] });
+  mac2.desk.window({ id: 'doc', app: 'Word', title: 'Trip notes.docx', x: 70, y: 60, w: 660, h: 600, content: doc });
+  const tw = mac2.desk.window({ id: 'term', kind: 'terminal', title: 'zsh — 80×24', x: 560, y: 330, w: 560, h: 330, prompt: 'user@mac ~ %' });
+  tw.term.print('ls ~/Desktop', 'cmd');
+  tw.term.print('Boarding pass.pdf   Receipts   Report.xlsx', 'out');
+  tw.term.print('', 'cmd');
+  mac2.desk.pointer('agent').set(380, 404).ripple(0.42, 'agent');
+  mac2.desk.toast({ app: 'Mail', title: 'Finance', body: { en: 'Receipts received, thanks!', zh: '收据已收到，谢谢！' }, time: 'now' });
+  colM.appendChild(h('p', { class: 'demo-cap' }, "PM.device.mac(el, {hardware: 'display', interactive: true})"));
+
+  window.__demo = { desk, sheet, agent, you, ph, term, mac2 };
+});
+</script>
+</body>
+</html>

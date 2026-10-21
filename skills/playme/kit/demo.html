@@ -1,0 +1,599 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PLAYME kit · core components</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M4 2.5v11L13.5 8z' fill='%235EEAFF'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="fonts/fonts.css">
+<link rel="stylesheet" href="playme.css">
+<style>
+  /* Page chrome for the kitchen sink only. Uses the kit tokens; the parts themselves are pure kit. */
+  .pm .demo { max-width: 1040px; margin: 0 auto; padding: 0 24px 120px; }
+  .pm .demo-top { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 18px 0; border-bottom: 1px solid var(--pm-line); }
+  .pm .demo-mark { display: flex; align-items: baseline; gap: 10px; color: var(--pm-hi); text-decoration: none; }
+  .pm .demo-mark b { font: 800 19px/1 var(--pm-display); letter-spacing: .02em; }
+  .pm .demo-mark b i { font-style: normal; color: var(--pm-accent); text-shadow: 0 0 14px color-mix(in srgb, var(--pm-accent) 70%, transparent); }
+  .pm .demo-mark span { font: 500 12px/1 var(--pm-mono); color: var(--pm-mu); }
+  .pm .demo-hero { padding: 56px 0 8px; }
+  .pm .demo-hero h1 { max-width: 15em; font: 800 clamp(30px, 2.6vw + 18px, 50px)/1.06 var(--pm-display); letter-spacing: -.025em; color: var(--pm-hi); text-wrap: balance; }
+  html[lang^="zh"] .pm .demo-hero h1 { font-size: clamp(28px, 2.2vw + 16px, 42px); line-height: 1.3; letter-spacing: .01em; }
+  .pm .demo-hero p { max-width: 40em; margin-top: 16px; font-size: 17px; line-height: 1.65; color: var(--pm-tx); }
+  .pm .demo-hero .demo-files { margin-top: 14px; font: 500 12.5px/1.7 var(--pm-mono); color: var(--pm-mu); }
+  .pm .demo-files code { color: var(--pm-hi); }
+  .pm .demo-toc { display: flex; flex-wrap: wrap; gap: 8px 22px; margin-top: 26px; padding-top: 16px; border-top: 1px solid var(--pm-line); font: 500 13px/1.5 var(--pm-mono); }
+  .pm .demo-toc a { color: var(--pm-tx); text-decoration: underline; text-decoration-color: var(--pm-line-2); text-underline-offset: 5px; }
+  .pm .demo-toc a:hover { color: var(--pm-hi); text-decoration-color: var(--pm-accent); }
+  .pm .demo-toc a span { color: var(--pm-accent); margin-right: 6px; }
+  .pm .demo-sec { padding-top: 76px; scroll-margin-top: 12px; }
+  .pm .demo-sec > header { display: grid; gap: 8px; margin-bottom: 26px; }
+  .pm .demo-num { font: 500 12px/1.4 var(--pm-mono); letter-spacing: .14em; color: var(--pm-mu); }
+  .pm .demo-sec h2 { font: 700 clamp(22px, 1vw + 17px, 28px)/1.2 var(--pm-display); letter-spacing: -.012em; color: var(--pm-hi); }
+  html[lang^="zh"] .pm .demo-sec h2 { letter-spacing: .01em; line-height: 1.4; }
+  .pm .demo-sec header p { max-width: 46em; font-size: 15.5px; line-height: 1.65; color: var(--pm-tx); }
+  .pm .demo-sec header p code, .pm .demo-note code { font: 500 .9em var(--pm-mono); color: var(--pm-hi); }
+  .pm .demo-note { margin-top: 18px; font-size: 14px; line-height: 1.6; color: var(--pm-mu); }
+  .pm .demo-note a { color: var(--pm-accent); text-underline-offset: 4px; }
+  .pm .demo-src { margin-top: 22px; }
+  .pm .demo-panel { display: grid; grid-template-columns: minmax(0, 1fr); min-width: 0; border: 1px solid var(--pm-line); border-radius: var(--pm-r-lg); background: var(--pm-panel); }
+  .pm .demo-row { display: grid; grid-template-columns: 230px minmax(0, 1fr); align-items: center; gap: 12px 24px; min-width: 0; padding: 18px 22px; }
+  .pm .demo-row + .demo-row { border-top: 1px solid var(--pm-line); }
+  .pm .demo-api { font: 500 12.5px/1.5 var(--pm-mono); color: var(--pm-hi); overflow-wrap: anywhere; }
+  .pm .demo-api small { display: block; margin-top: 3px; font: 400 13px/1.5 var(--pm-sans); color: var(--pm-mu); }
+  .pm .demo-live { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px; min-width: 0; }
+  .pm .demo-out { font: 500 12.5px/1.5 var(--pm-mono); color: var(--pm-mu); }
+  .pm .demo-out b { font-weight: 500; color: var(--pm-accent); }
+  .pm .demo-grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; min-width: 0; }
+  .pm .demo-stack { display: grid; grid-template-columns: minmax(0, 1fr); align-content: start; gap: 12px; min-width: 0; }
+  .pm .demo-cap { font: 500 12px/1.5 var(--pm-mono); color: var(--pm-mu); }
+  .pm .demo-foot { margin-top: 96px; padding-top: 20px; border-top: 1px solid var(--pm-line); font: 500 12.5px/1.7 var(--pm-mono); color: var(--pm-mu); }
+
+  /* example 01 scene: sender → noisy link → receiver */
+  .pm .rt { position: relative; height: 168px; }
+  .pm .rt-wire { position: absolute; left: 10%; right: 10%; top: 78px; height: 2px; border-radius: 2px; background: var(--pm-line-2); }
+  .pm .rt-noise { position: absolute; left: 38%; width: 24%; top: 66px; height: 26px; color: var(--pm-warn); opacity: .75; }
+  .pm .rt-node { position: absolute; top: 48px; display: grid; justify-items: center; gap: 10px; transform: translateX(-50%); }
+  .pm .rt-disc {
+    display: grid; place-items: center; width: 62px; height: 62px; border-radius: 50%; color: var(--pm-hi);
+    background: radial-gradient(circle at 50% 30%, rgba(150, 162, 230, .16), var(--pm-bg-2) 70%); box-shadow: 0 0 0 1px var(--pm-line-2), 0 10px 26px -12px #000;
+  }
+  .pm .rt-disc svg { width: 26px; height: 26px; }
+  .pm .rt-link .rt-disc { width: 44px; height: 44px; margin-top: 9px; color: var(--pm-warn); }
+  .pm .rt-link .rt-disc svg { width: 20px; height: 20px; }
+  .pm .rt-name { font: 500 12.5px/1.3 var(--pm-mono); color: var(--pm-tx); white-space: nowrap; }
+  .pm .rt-link .rt-name { margin-top: 9px; }
+  .pm .rt-recv.is-got .rt-disc { color: var(--pm-ok); box-shadow: 0 0 0 2px var(--pm-ok), 0 0 30px -4px var(--pm-ok); }
+  .pm .rt-recv.is-missing .rt-disc { color: var(--pm-err); box-shadow: 0 0 0 2px var(--pm-err), 0 0 24px -6px var(--pm-err); }
+  .pm .rt-packet {
+    position: absolute; top: 79px; left: 10%; z-index: 2; width: 18px; height: 18px; margin: -9px 0 0 -9px; border-radius: 5px;
+    background: var(--pm-accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--pm-accent) 25%, transparent), 0 0 18px var(--pm-accent);
+  }
+  .pm .rt-packet.is-lost { background: var(--pm-err); box-shadow: 0 0 0 3px color-mix(in srgb, var(--pm-err) 25%, transparent), 0 0 18px var(--pm-err); }
+  .pm .rt-burst { position: absolute; top: 79px; left: 50%; width: 30px; height: 30px; margin: -15px 0 0 -15px; border: 2px solid var(--pm-err); border-radius: 50%; opacity: 0; pointer-events: none; }
+  .pm .rt-tries { position: absolute; left: 0; top: 0; font: 500 12px/1.4 var(--pm-mono); color: var(--pm-mu); }
+  .pm .rt-tries b { font-weight: 500; color: var(--pm-hi); }
+
+  /* example 02 scene: three loading strategies on one clock */
+  .pm .ld { display: grid; gap: 14px; }
+  .pm .ld-lane { display: grid; grid-template-columns: 150px minmax(0, 1fr) 52px; align-items: center; gap: 14px; --c: var(--pm-tx); }
+  .pm .ld-lane[data-tone="ok"] { --c: var(--pm-ok); }
+  .pm .ld-lane[data-tone="info"] { --c: var(--pm-info); }
+  .pm .ld-lane[data-tone="warn"] { --c: var(--pm-warn); }
+  .pm .ld-name { font: 500 13px/1.3 var(--pm-mono); color: var(--pm-tx); }
+  .pm .ld-cells { display: grid; grid-template-columns: repeat(9, minmax(0, 1fr)); gap: 5px; }
+  .pm .ld-cell { position: relative; height: 26px; overflow: hidden; border-radius: 5px; background: rgba(150, 162, 230, .08); box-shadow: inset 0 0 0 1px rgba(150, 162, 230, .1); }
+  .pm .ld-cell i { position: absolute; left: 0; top: 0; bottom: 0; width: calc(var(--f, 0) * 100%); background: color-mix(in srgb, var(--c) 45%, transparent); }
+  .pm .ld-cell.is-done { background: color-mix(in srgb, var(--c) 78%, transparent); box-shadow: 0 0 12px -3px var(--c); }
+  .pm .ld-cell.is-done i { display: none; }
+  .pm .ld-time { font: 500 12.5px/1 var(--pm-mono); font-variant-numeric: tabular-nums; text-align: right; color: var(--pm-mu); }
+  .pm .ld-lane.is-done .ld-time { color: var(--c); }
+  .pm .ld-lane.is-done .ld-name { color: var(--pm-hi); }
+
+  /* controls section previews */
+  .pm .ct-dot { width: var(--d, 26px); height: var(--d, 26px); border-radius: 50%; background: var(--pm-accent); transition: width .25s, height .25s, box-shadow .25s; }
+  .pm .ct-dot.is-glow { box-shadow: 0 0 0 6px color-mix(in srgb, var(--pm-accent) 18%, transparent), 0 0 30px var(--pm-accent); }
+  .pm .ct-preview { display: grid; place-items: center; width: 64px; height: 64px; }
+  .pm .ct-tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 120px)); gap: 10px; }
+  .pm .ct-tile { display: grid; gap: 4px; padding: 12px; border-radius: var(--pm-r); background: var(--pm-bg-2); box-shadow: inset 0 0 0 1px var(--pm-line); font-size: 13px; color: var(--pm-tx); }
+  .pm .ct-tile b { font: 600 14px/1.3 var(--pm-sans); color: var(--pm-hi); }
+
+  @media (max-width: 760px) {
+    .pm .demo-row { grid-template-columns: minmax(0, 1fr); padding: 16px; }
+    .pm .demo-grid2 { grid-template-columns: minmax(0, 1fr); }
+  }
+  @media (max-width: 640px) {
+    .pm .demo { padding: 0 16px 96px; }
+    .pm .demo-hero { padding-top: 36px; }
+    .pm .demo-hero p { font-size: 16px; }
+    .pm .demo-sec { padding-top: 60px; }
+    .pm .rt { height: 150px; }
+    .pm .rt-disc { width: 52px; height: 52px; }
+    .pm .rt-disc svg { width: 22px; height: 22px; }
+    .pm .rt-link .rt-disc { width: 38px; height: 38px; margin-top: 7px; }
+    .pm .rt-node { top: 40px; }
+    .pm .rt-wire, .pm .rt-packet, .pm .rt-burst { top: 66px; }
+    .pm .rt-noise { top: 54px; }
+    .pm .rt-name { font-size: 11.5px; }
+    .pm .ld-lane { grid-template-columns: minmax(0, 1fr) auto; gap: 8px 12px; }
+    .pm .ld-cells { grid-column: 1 / -1; grid-row: 2; gap: 4px; }
+    .pm .ld-cell { height: 22px; }
+    .pm .ct-tiles { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  }
+</style>
+</head>
+<body class="pm pm-page">
+<div class="demo">
+  <header class="demo-top">
+    <a class="demo-mark" href="#top" id="top"><b>PLAY<i>▶</i>ME</b><span data-l-en="kit · core" data-l-zh="组件库 · 核心">kit · core</span></a>
+    <span id="lang-slot"></span>
+  </header>
+
+  <section class="demo-hero">
+    <h1 data-l-en="Every core component, live on one page." data-l-zh="所有核心组件，都在这一页上实际运行。">Every core component, live on one page.</h1>
+    <p data-l-en="This page is the kitchen sink of playme.css and playme.js. Each example below is built with the same calls a PLAYME page uses, and the code under each example is the code that runs it."
+       data-l-zh="这一页集中展示 playme.css 与 playme.js 的全部组件。下面每个示例都用 PLAYME 页面同样的调用搭建，示例下方展示的就是驱动它的代码。">This page is the kitchen sink of playme.css and playme.js.</p>
+    <p class="demo-files"><code>playme.css</code> + <code>playme.js</code> · <span data-l-en="no build step, no dependencies" data-l-zh="无需构建，无依赖">no build step, no dependencies</span> · <span data-l-en="reference:" data-l-zh="参考文档：">reference:</span> <code>references/kit.md</code></p>
+    <nav class="demo-toc" aria-label="Sections">
+      <a href="#ex-part"><span>01</span><span data-l-en="Part template + player" data-l-zh="部件模板与播放器">Part template + player</span></a>
+      <a href="#ex-timeline"><span>02</span><span data-l-en="Timeline form" data-l-zh="时间线写法">Timeline form</span></a>
+      <a href="#ex-controls"><span>03</span><span data-l-en="Controls" data-l-zh="控件">Controls</span></a>
+      <a href="#ex-code"><span>04</span><span data-l-en="Code panes" data-l-zh="代码面板">Code panes</span></a>
+      <a href="#ex-source"><span>05</span><span data-l-en="Source lines and readouts" data-l-zh="来源行与读数">Source lines and readouts</span></a>
+    </nav>
+  </section>
+
+  <section class="demo-sec" id="ex-part">
+    <header>
+      <span class="demo-num">01</span>
+      <h2 data-l-en="The part template, every slot filled" data-l-zh="部件模板：所有位置都已填充">The part template, every slot filled</h2>
+      <p data-l-en="One question, one primary action, one option, a scrubber with marks, a live caption, readouts that fill on done, a takeaway that lights up, and two closed folds."
+         data-l-zh="一个问题、一个主操作、一个选项、带标记的进度条、实时字幕、播放结束才填入的读数、播放后点亮的结论句，以及两个默认收起的折叠区。">One question, one primary action, one option.</p>
+    </header>
+    <div id="slot-retry"></div>
+    <p class="demo-note"><span data-l-en="Deep link: " data-l-zh="深度链接：">Deep link: </span><a href="?part=retry&amp;t=4200#ex-part"><code>demo.html?part=retry&amp;t=4200</code></a> <span data-l-en="opens this part paused at 0:04 (screenshots and captures use it)." data-l-zh="打开时这一部分停在 0:04（截图与录制都用它）。">opens this part paused at 0:04.</span></p>
+    <div class="demo-src" id="src-retry"></div>
+  </section>
+
+  <section class="demo-sec" id="ex-timeline">
+    <header>
+      <span class="demo-num">02</span>
+      <h2 data-l-en="The timeline form: duration + render(t)" data-l-zh="时间线写法：duration + render(t)">The timeline form: duration + render(t)</h2>
+      <p data-l-en="When the scene is a pure function of time, skip the script. Give a duration, a render(t), and the captions and marks; the kit plays, measures and scrubs it the same way."
+         data-l-zh="当画面完全由时间决定时，可以不写脚本：给出时长、render(t)，以及字幕和标记，套件就会用同样的方式播放、测量和拖动它。">When the scene is a pure function of time, skip the script.</p>
+    </header>
+    <div id="slot-loaders"></div>
+    <div class="demo-src" id="src-loaders"></div>
+  </section>
+
+  <section class="demo-sec" id="ex-controls">
+    <header>
+      <span class="demo-num">03</span>
+      <h2 data-l-en="Controls: the only things that look clickable" data-l-zh="控件：只有可点击的东西才长得像按钮">Controls: the only things that look clickable</h2>
+      <p data-l-en="Buttons, segmented choices, switches and in-scene targets carry the button shapes. Inside a part, place them in the bar with P as the parent; they line up before the scrubber."
+         data-l-zh="按钮、分段选择、开关和画面内目标才有按钮的外形。在部件里把 P 作为父元素传入，它们会排在进度条之前。">Buttons, segmented choices, switches and in-scene targets carry the button shapes.</p>
+    </header>
+    <div class="demo-panel" id="slot-controls"></div>
+    <div class="demo-src" id="src-controls"></div>
+  </section>
+
+  <section class="demo-sec" id="ex-code">
+    <header>
+      <span class="demo-num">04</span>
+      <h2 data-l-en="Code panes: intent above, real code below" data-l-zh="代码面板：上面是意图，下面是真实代码">Code panes: intent above, real code below</h2>
+      <p data-l-en="Line marks (run, ok, err, warn, dim), glowing focus tokens, “…” elision lines, and panes that scroll both ways with a sticky gutter. Lines never wrap."
+         data-l-zh="行标记（run、ok、err、warn、dim）、发光的焦点片段、“…”省略行，以及可横竖滚动、行号固定的面板。代码行从不折行。">Line marks, focus tokens, elision lines, two-axis scroll.</p>
+    </header>
+    <div class="demo-stack" id="slot-code"></div>
+    <div class="demo-src" id="src-code"></div>
+  </section>
+
+  <section class="demo-sec" id="ex-source">
+    <header>
+      <span class="demo-num">05</span>
+      <h2 data-l-en="Source lines and readouts" data-l-zh="来源行与读数">Source lines and readouts</h2>
+      <p data-l-en="A source line is plain text with one glyph per kind, never a pill. Readouts are big tabular numbers between hairlines, toned only when the tone carries meaning."
+         data-l-zh="来源行是带符号的普通文字，绝不做成胶囊。读数是细线之间的大号等宽数字，只有颜色有含义时才着色。">A source line is plain text with one glyph per kind.</p>
+    </header>
+    <div class="demo-panel" id="slot-source"></div>
+    <div class="demo-src" id="src-source"></div>
+  </section>
+
+  <footer class="demo-foot">PLAYME kit · MIT · <span data-l-en="Fonts: Archivo, Instrument Sans, JetBrains Mono (SIL OFL 1.1), in kit/fonts/." data-l-zh="字体：Archivo、Instrument Sans、JetBrains Mono（SIL OFL 1.1），位于 kit/fonts/。">Fonts: Archivo, Instrument Sans, JetBrains Mono (SIL OFL 1.1), in kit/fonts/.</span></footer>
+</div>
+
+<script src="playme.js"></script>
+<script>
+/* Example 01: a story script on the virtual clock (reset + run), one toggle, readouts filled on done, two folds. */
+function buildRetry(PM, host) {
+  const { h, s, L, lerp, ease } = PM;
+  let retry = false;
+  let senderCode = null;
+
+  const P = PM.part(host, {
+    id: 'retry',
+    eyebrow: L('Example 01 · Part template', '示例 01 · 部件模板'),
+    q: L('What does one retry change for a lost packet?', '一次重试能为丢失的数据包带来什么？'),
+    lead: L('Send one packet over a noisy link, with and without a retry.', '让一个数据包穿过有噪声的链路，比较重试与不重试。'),
+    takeaway: L('Without a retry the packet is gone; one retry delivers it at the cost of a second trip.',
+      '不重试，数据包就丢了；重试一次能送达，代价是多跑一趟。'),
+    source: [
+      { kind: 'sim', text: L('Simulation with illustrative timings', '模拟，时长仅作示意') },
+      { kind: 'note', text: L('Kit example', '组件示例') },
+    ],
+    folds: [
+      {
+        title: L('How the sender works', '发送方怎么写'),
+        teaser: L('Ten lines of Python; the retries argument decides it.', '十行 Python，决定结果的是 retries 参数。'),
+        render(el) {
+          PM.intent(el, L('Send the packet; if the link drops it, try again.', '发送数据包；如果链路丢了它，就再试一次。'));
+          senderCode = PM.code(el, {
+            lang: 'python', title: 'sender.py',
+            src: [
+              'def send(packet, retries=0):',
+              '    for attempt in range(1 + retries):',
+              '        if link.transmit(packet):',
+              '            return attempt + 1          # delivered',
+              '        log.warning("lost", attempt=attempt)',
+              '…',
+              '    raise Dropped(packet)',
+              '',
+              'send(packet)              # no retry: one attempt',
+              'send(packet, retries=3)   # retry on loss',
+            ].join('\n'),
+            focus: ['retries=3'],
+            marks: { [retry ? 9 : 8]: 'run' },
+          });
+        },
+      },
+      {
+        title: L('Why a retry is not free', '为什么重试有代价'),
+        teaser: L('Each retry adds a round trip and can duplicate a packet.', '每次重试多一次往返，还可能产生重复包。'),
+        render(el) {
+          el.append(
+            L('A retry costs one more trip over the link, so delivery takes longer. When only the acknowledgement is lost, the receiver gets the same packet twice.',
+              '每次重试都要再走一遍链路，送达因此变慢。如果丢的只是确认消息，接收方会收到两份同样的数据包。', 'p'),
+            L('Real protocols number their packets, so the receiver can drop the duplicate.',
+              '真实的协议会给数据包编号，让接收方丢弃重复的那一份。', 'p'));
+        },
+      },
+    ],
+  });
+
+  /* the scene: logical positions in % of the scene width, set as a pure function of the script's progress */
+  const glyph = (d) => s('svg', { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', 'stroke-width': 1.8, 'stroke-linecap': 'round', 'stroke-linejoin': 'round', 'aria-hidden': 'true' }, s('path', { d }));
+  const node = (cls, x, name, d) => h('div', { class: ['rt-node', cls], style: { left: `${x}%` } }, h('div', { class: 'rt-disc' }, glyph(d)), h('span', { class: 'rt-name' }, name));
+  const sender = node('rt-send', 10, L('Sender', '发送方'), 'M12 19V5M6 11l6-6 6 6');
+  const link = node('rt-link', 50, L('Noisy link', '噪声链路'), 'M13 2 4 14h7l-1 8 9-12h-7z');
+  const recv = node('rt-recv', 90, L('Receiver', '接收方'), 'M4 13h4l2 3h4l2-3h4M4 13l2-8h12l2 8v6H4z');
+  const packet = h('div', { class: 'rt-packet' });
+  const burst = h('div', { class: 'rt-burst' });
+  const tries = h('b', null, '0');
+  const noise = s('svg', { class: 'rt-noise', viewBox: '0 0 120 26', preserveAspectRatio: 'none', 'aria-hidden': 'true' },
+    s('path', { d: 'M0 13 L10 4 L20 22 L30 4 L40 22 L50 4 L60 22 L70 4 L80 22 L90 4 L100 22 L110 4 L120 13', fill: 'none', stroke: 'currentColor', 'stroke-width': 1.5 }));
+  P.scene.append(h('div', { class: 'rt' },
+    h('span', { class: 'rt-tries' }, L('attempts ', '尝试次数 '), tries),
+    h('div', { class: 'rt-wire' }), noise, sender, link, recv, burst, packet));
+
+  const at = (x) => { packet.style.left = `${x}%`; };
+  const lost = (k) => {                    // the packet drops off the wire while a ring bursts at the link
+    packet.classList.toggle('is-lost', k > 0);
+    packet.style.transform = `translateY(${k * 38}px) scale(${1 - k * 0.4})`;
+    packet.style.opacity = String(1 - k);
+    burst.style.opacity = String(k < 1 ? 1 - k : 0);
+    burst.style.transform = `scale(${1 + k * 2.2})`;
+  };
+  const relaunch = (n) => { lost(0); burst.style.opacity = '0'; at(10); tries.textContent = String(n); };
+
+  const ro = PM.readouts(P, [
+    { id: 'tries', label: L('Attempts', '尝试次数') },
+    { id: 'got', label: L('Delivered', '是否送达') },
+    { id: 'time', label: L('Time', '耗时'), unit: 's' },
+  ]);
+
+  PM.toggle(P, {
+    label: L('Retry on loss', '丢失后重试'),
+    onChange(v) {
+      retry = v;
+      if (senderCode) senderCode.mark({ [v ? 9 : 8]: 'run' });
+      player.reset();                      // the story changed: back to rest, re-measure the marks
+    },
+  });
+
+  const player = PM.player(P, {
+    label: L('Send packet', '发送数据包'),
+    reset() {
+      relaunch(0);
+      recv.classList.remove('is-got', 'is-missing');
+      ro.reset();
+    },
+    async run(ctx) {
+      relaunch(1);
+      ctx.narrate(L('The sender sends packet #1 toward the receiver.', '发送方把 1 号数据包发往接收方。'));
+      await ctx.tween(1300, (k) => at(lerp(10, 50, k)), ease.inOut);
+      ctx.mark(L('Packet lost on the link', '数据包在链路上丢失'), 'err');
+      ctx.narrate(L('The noisy link drops it.', '噪声链路把它丢掉了。'), 'err');
+      await ctx.tween(800, lost, ease.out);
+      await ctx.sleep(500);
+      if (!retry) {
+        recv.classList.add('is-missing');
+        ctx.mark(L('Sender gives up', '发送方放弃'), 'warn');
+        ctx.narrate(L('No retry, so the receiver never gets it.', '没有重试，接收方永远收不到。'), 'warn');
+        await ctx.sleep(1800);
+        return;
+      }
+      relaunch(2);
+      ctx.narrate(L('Retry: the sender sends the same packet again.', '重试：发送方再发一次同一个数据包。'), 'agent');
+      await ctx.tween(1300, (k) => at(lerp(10, 50, k)), ease.inOut);
+      ctx.narrate(L('This time it passes the link.', '这一次它通过了链路。'));
+      await ctx.tween(1100, (k) => at(lerp(50, 90, k)), ease.inOut);
+      recv.classList.add('is-got');
+      ctx.mark(L('Delivered on attempt 2', '第 2 次尝试送达'), 'ok');
+      ctx.narrate(L('Delivered on the second attempt.', '第二次尝试送达。'), 'ok');
+      await ctx.sleep(1500);
+    },
+    onDone() {
+      ro.set('tries', retry ? 2 : 1);
+      ro.set('got', retry ? L('Yes', '是') : L('No', '否'), retry ? 'ok' : 'err');
+      ro.set('time', PM.fmt.num(player.duration / 1000, 1));
+    },
+  });
+  return P;
+}
+
+/* Example 02: the timeline form. The scene is a pure function of t; captions and marks are listed by time. */
+function buildLoaders(PM, host) {
+  const { h, L, span } = PM;
+  const P = PM.part(host, {
+    id: 'loaders',
+    eyebrow: L('Example 02 · Timeline form', '示例 02 · 时间线写法'),
+    q: L('Which loading strategy finishes nine files first?', '哪种加载方式最先完成九个文件？'),
+    takeaway: L('Three parallel lanes finish in a third of the time; batching lands in between.',
+      '三路并行只用三分之一的时间；分批加载介于两者之间。'),
+    source: [{ kind: 'sim', text: L('Simulation: 1 s per file, 0.6 s per batch', '模拟：每个文件 1 秒，每批额外 0.6 秒') }],
+    folds: [{
+      title: L('The render(t) function', 'render(t) 函数'),
+      teaser: L('Each cell asks when it starts and when it is done.', '每个格子只问两件事：何时开始，何时完成。'),
+      render(el) {
+        PM.code(el, {
+          lang: 'js', title: 'loaders.js',
+          src: [
+            'render(t) {',
+            '  for (const lane of lanes) lane.cells.forEach((cell, i) => {',
+            '    const f = PM.span(t, lane.start(i), lane.done(i));   // 0 → 1 while the file loads',
+            "    cell.classList.toggle('is-done', f >= 1);",
+            "    cell.style.setProperty('--f', f);",
+            '  });',
+            '}',
+          ].join('\n'),
+          focus: ['PM.span(t, lane.start(i), lane.done(i))'],
+        });
+      },
+    }],
+  });
+
+  const lanes = [
+    { tone: 'warn', name: L('One at a time', '逐个加载'), start: (i) => i * 1000, done: (i) => (i + 1) * 1000 },
+    { tone: 'ok', name: L('Three lanes', '三路并行'), start: (i) => Math.floor(i / 3) * 1000, done: (i) => (Math.floor(i / 3) + 1) * 1000 },
+    { tone: 'info', name: L('Batches of three', '三个一批'), start: (i) => Math.floor(i / 3) * 1600 + 600, done: (i) => (Math.floor(i / 3) + 1) * 1600 },
+  ];
+  const wrap = h('div', { class: 'ld' });
+  for (const lane of lanes) {
+    lane.cells = Array.from({ length: 9 }, () => h('span', { class: 'ld-cell' }, h('i')));
+    lane.time = h('span', { class: 'ld-time' }, '');
+    lane.end = lane.done(8);
+    lane.el = h('div', { class: 'ld-lane', dataset: { tone: lane.tone } },
+      h('span', { class: 'ld-name' }, lane.name), h('span', { class: 'ld-cells' }, lane.cells), lane.time);
+    wrap.append(lane.el);
+  }
+  P.scene.append(wrap);
+
+  PM.player(P, {
+    label: L('Start loading', '开始加载'),
+    duration: 9600,
+    render(t) {
+      for (const lane of lanes) {
+        lane.cells.forEach((cell, i) => {
+          const f = span(t, lane.start(i), lane.done(i));
+          cell.classList.toggle('is-done', f >= 1);
+          cell.style.setProperty('--f', f.toFixed(3));
+        });
+        const done = t >= lane.end;
+        lane.el.classList.toggle('is-done', done);
+        lane.time.textContent = done ? PM.fmt.time(lane.end) : '';
+      }
+    },
+    captions: [
+      { t: 0, text: L('Nine files per lane, one shared clock.', '每条通道九个文件，共用一个时钟。') },
+      { t: 3000, text: L('Three lanes in parallel finish first.', '三路并行最先完成。'), tone: 'ok' },
+      { t: 4800, text: L('Batches of three finish next.', '三个一批随后完成。'), tone: 'info' },
+      { t: 9000, text: L('One at a time finishes last.', '逐个加载最后完成。'), tone: 'warn' },
+    ],
+    marks: [
+      { t: 3000, label: L('Three lanes done', '三路并行完成'), tone: 'ok' },
+      { t: 4800, label: L('Batches done', '分批加载完成'), tone: 'info' },
+      { t: 9000, label: L('One at a time done', '逐个加载完成'), tone: 'warn' },
+    ],
+  });
+  return P;
+}
+
+/* Example 03: controls outside a player. In a part, pass P (or P.bar) as the parent instead of a row. */
+function buildControls(PM, host) {
+  const { h, L } = PM;
+  const row = (api, note, ...live) => {
+    const el = h('div', { class: 'demo-row' },
+      h('div', { class: 'demo-api' }, api, h('small', null, note)),
+      h('div', { class: 'demo-live' }, live));
+    host.append(el);
+    return el.lastChild;
+  };
+
+  const btns = row('PM.button(parent, label, {kind, icon})', L('primary · secondary · ghost · icon only', 'primary · secondary · ghost · 仅图标'));
+  const said = h('b', null, '—');
+  PM.button(btns, L('Primary', '主操作'), { kind: 'primary', icon: 'play', onClick: () => { said.textContent = 'primary'; } });
+  PM.button(btns, L('Secondary', '次要'), { kind: 'secondary', onClick: () => { said.textContent = 'secondary'; } });
+  PM.button(btns, L('Ghost', '文字按钮'), { kind: 'ghost', onClick: () => { said.textContent = 'ghost'; } });
+  PM.button(btns, null, { kind: 'ghost', icon: 'replay', ariaLabel: L('Reset', '重置'), onClick: () => { said.textContent = 'icon'; } });
+  btns.append(h('span', { class: 'demo-out' }, L('clicked: ', '点击了：'), said));
+
+  const dot = h('div', { class: 'ct-dot' });
+  const segOut = h('b', null, "'m'");
+  const seg = row('PM.segmented(parent, {options, value, onChange})', L('one choice among a few', '在几个选项中选一个'));
+  PM.segmented(seg, {
+    options: [{ id: 's', label: L('Small', '小') }, { id: 'm', label: L('Medium', '中') }, { id: 'l', label: L('Large', '大') }],
+    value: 'm',
+    ariaLabel: L('Dot size', '圆点大小'),
+    onChange(id) { dot.style.setProperty('--d', { s: '16px', m: '26px', l: '40px' }[id]); segOut.textContent = `'${id}'`; },
+  });
+  seg.append(h('span', { class: 'demo-out' }, 'value ', segOut));
+
+  const tog = row('PM.toggle(parent, {label, value, onChange})', L('a switch for one condition', '控制一个条件的开关'));
+  const togOut = h('b', null, 'false');
+  PM.toggle(tog, { label: L('Glow', '发光'), onChange(v) { dot.classList.toggle('is-glow', v); togOut.textContent = String(v); } });
+  tog.append(h('span', { class: 'demo-out' }, 'value ', togOut), h('div', { class: 'ct-preview' }, dot));
+
+  const tgt = row('PM.target(el, {onActivate, label, pressed})', L('in-scene things the reader points at', '读者在画面中点选的对象'));
+  const tiles = h('div', { class: 'ct-tiles' });
+  [['Report.xlsx', L('back window', '后台窗口')], ['Browser', L('front window', '前台窗口')], ['Terminal', L('hidden', '隐藏')]].forEach(([name, sub], i) => {
+    const tile = h('div', { class: 'ct-tile' }, h('b', null, name), h('span', null, sub));
+    PM.target(tile, {
+      label: name, pressed: i === 0,
+      onActivate() { tiles.querySelectorAll('.pm-target').forEach((x) => x.setAttribute('aria-pressed', String(x === tile))); },
+    });
+    tiles.append(tile);
+  });
+  tgt.append(tiles);
+
+  const lang = row('PM.langToggle(parent)', L('switches <html lang>; every PM.L node follows', '切换 <html lang>，所有 PM.L 节点随之更新'));
+  PM.langToggle(lang);
+}
+
+/* Example 04: code panes. Intent line, marks, focus tokens, elision, two-axis scroll, all highlighters. */
+function buildCode(PM, host) {
+  const { h, L } = PM;
+  const a = h('div', { class: 'demo-stack' });
+  host.append(a);
+  PM.intent(a, L('Fill the seven status cells, then save the report.', '填好七个状态格，然后保存报告。'));
+  PM.code(a, {
+    lang: 'python', title: 'agent_step.py · marks run / ok / err / dim',
+    src: [
+      'import harness',
+      '',
+      'cells = sheet.range("C2:C8")',
+      'for row, status in zip(cells, statuses):',
+      '    row.value = status                       # seven writes',
+      '…',
+      'harness.click(612, 404)                      # lands in the front window',
+      'harness.click(612, 404, window="Report.xlsx")',
+      'harness.save(window="Report.xlsx")',
+    ].join('\n'),
+    marks: { 1: 'dim', 3: 'run', 6: 'err', 7: 'ok', 8: 'ok' },
+    focus: ['window="Report.xlsx"'],
+  });
+
+  const b = h('div', { class: 'demo-stack' }, h('span', { class: 'demo-cap' }, L('long lines + maxHeight: the pane scrolls both ways, the gutter stays', '长代码行 + maxHeight：面板横竖都能滚动，行号保持不动')));
+  host.append(b);
+  PM.code(b, {
+    lang: 'js', title: 'long-lines.js', maxHeight: 220,
+    src: [
+      '// A real excerpt keeps its long lines; the pane scrolls sideways instead of wrapping them.',
+      "const result = await harness.run({ task: 'Fill the seven status cells in Report.xlsx and save it', window: 'Report.xlsx', timeoutMs: 120000, retries: 2 });",
+      'if (!result.ok) throw new Error(`step ${result.step} failed: ${result.error.kind} at (${result.error.x}, ${result.error.y}) in ${result.error.window}`);',
+      '',
+      'export function summarize(trace) {',
+      "  return trace.steps.filter((s) => s.kind === 'click').map((s) => `${s.t.toFixed(1)}s  click(${s.x}, ${s.y}${s.window ? `, window=\"${s.window}\"` : ''})`).join('\\n');",
+      '}',
+      '',
+      'const totals = { steps: 41, clicks: 17, writes: 7, saves: 1 };   // numbers from one run',
+      'console.log(summarize(trace), totals);',
+      '…',
+      'export default { summarize };',
+    ].join('\n'),
+    marks: { 2: 'run', 3: 'warn' },
+    focus: ["window: 'Report.xlsx'"],
+  });
+
+  const c = h('div', { class: 'demo-grid2' });
+  host.append(c);
+  const c1 = h('div', { class: 'demo-stack' }, h('span', { class: 'demo-cap' }, 'bash'));
+  const c2 = h('div', { class: 'demo-stack' }, h('span', { class: 'demo-cap' }, 'json'));
+  c.append(c1, c2);
+  PM.code(c1, {
+    lang: 'bash', title: 'build.sh',
+    src: [
+      '# bundle the page into one offline file',
+      'python3 scripts/bundle.py site/index.html -o PLAYME.html --offline',
+      'node scripts/lint.mjs --url http://127.0.0.1:8811/PLAYME.html --widths 1440,400',
+      'if [ $? -ne 0 ]; then echo "lint failed"; exit 1; fi',
+    ].join('\n'),
+    marks: { 2: 'ok' },
+  });
+  PM.code(c2, {
+    lang: 'json', title: 'facts.json',
+    src: ['{', '  "labs": 7,', '  "parts": 18,', '  "bilingual": true,', '  "review_rounds": 7,', '  "requests": 28', '}'].join('\n'),
+    focus: ['"parts": 18'],
+  });
+
+  const d = h('div', { class: 'demo-stack' }, h('span', { class: 'demo-cap' }, L('text, lineNumbers: false', '纯文本，lineNumbers: false')));
+  host.append(d);
+  PM.code(d, {
+    lang: 'text', lineNumbers: false,
+    src: 'AX mac  window="Report.xlsx"  focused=false\n  [12] AXCell  "C2"  value=""\n  [13] AXCell  "C3"  value=""\n…',
+    focus: ['focused=false'],
+  });
+}
+
+/* Example 05: source line kinds and readout tones, outside a part. */
+function buildSources(PM, host) {
+  const { h, L } = PM;
+  const row = (api, note) => {
+    const live = h('div', { class: 'demo-live' });
+    host.append(h('div', { class: 'demo-row' }, h('div', { class: 'demo-api' }, api, h('small', null, note)), live));
+    return live;
+  };
+  const line = (list) => { const p = h('p', { class: 'pm-source' }); PM.source(p, list); return p; };
+  row("{kind: 'sim'}", L('a simulation, labelled as one', '模拟，并如实标注')).append(line([{ kind: 'sim' }]));
+  row("{kind: 'real'}", L('a real run, with its provenance', '真实运行，并注明出处')).append(line([{ kind: 'real', text: L('Real run · model A · task 3 · run 1 · step 14', '真实运行 · 模型 A · 任务 3 · 第 1 次运行 · 第 14 步') }]));
+  row("{kind: 'paper'}", L('where in the paper to look', '指向论文中的具体位置')).append(line([{ kind: 'paper', text: L('Paper §4.3.1 · Fig. 6', '论文第 4.3.1 节 · 图 6') }]));
+  row("{kind: 'note'}", L('anything else worth one line', '其他值得一提的一句话')).append(line([{ kind: 'note', text: L('Timings shortened for reading', '为便于观看，时长已缩短') }]));
+  row(L('several kinds', '多种组合'), L('joined with a middle dot', '用间隔号连接')).append(line([
+    { kind: 'sim' }, { kind: 'paper', text: L('Paper Table 2', '论文表 2') }, { kind: 'note', text: L('Kit example', '组件示例') },
+  ]));
+
+  const out = row('PM.readouts(el, items)', L('tones only where they mean something', '只在有含义时着色'));
+  const strip = h('div', { class: 'pm-outcome' });
+  out.style.display = 'block';
+  out.append(strip);
+  const ro = PM.readouts(strip, [
+    { id: 'a', label: L('Steps', '步数') },
+    { id: 'b', label: L('Success', '成功率'), tone: 'ok' },
+    { id: 'c', label: L('Errors', '错误'), tone: 'err' },
+    { id: 'd', label: L('Tokens', 'Token 数') },
+  ]);
+  ro.set('a', 41).set('b', PM.fmt.pct(0.684, 1)).set('c', 3).set('d', PM.fmt.k(41200));
+}
+
+/* Boot: build every example, then show each builder's own source under it (the code shown is the code that runs). */
+PM.boot((PM) => {
+  PM.langToggle(document.getElementById('lang-slot'));
+  const show = (id, fn, title) => {
+    PM.fold(document.getElementById(id), {
+      title,
+      teaser: PM.L('The exact function that built the example above.', '搭建上面这个示例的原样函数。'),
+      render(el) { PM.code(el, { lang: 'js', src: fn.toString(), maxHeight: 460, title: `${fn.name}()` }); },
+    });
+  };
+  buildRetry(PM, document.getElementById('slot-retry'));
+  buildLoaders(PM, document.getElementById('slot-loaders'));
+  buildControls(PM, document.getElementById('slot-controls'));
+  buildCode(PM, document.getElementById('slot-code'));
+  buildSources(PM, document.getElementById('slot-source'));
+  show('src-retry', buildRetry, PM.L('Source of example 01', '示例 01 的源码'));
+  show('src-loaders', buildLoaders, PM.L('Source of example 02', '示例 02 的源码'));
+  show('src-controls', buildControls, PM.L('Source of example 03', '示例 03 的源码'));
+  show('src-code', buildCode, PM.L('Source of example 04', '示例 04 的源码'));
+  show('src-source', buildSources, PM.L('Source of example 05', '示例 05 的源码'));
+});
+</script>
+</body>
+</html>

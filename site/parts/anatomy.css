@@ -1,0 +1,122 @@
+/* Styles for the 'anatomy' part (Lab 03). Selectors start with .pm #anatomy or .pm .pmx-anatomy-. Colours: tokens only. */
+
+.pm #anatomy { --pmx-anatomy-h: clamp(420px, 37vw, 520px); }
+
+/* ---- scene: the 3D view (one stack, or two while they cross-fade), then the inspector line */
+.pm #anatomy .pm-scene { padding: 6px 8px 0; }
+.pm .pmx-anatomy-view { position: relative; min-width: 0; }
+.pm .pmx-anatomy-stack { position: relative; min-width: 0; }
+.pm .pmx-anatomy-stack.is-leaving { position: absolute; inset: 0; z-index: 4; pointer-events: none; transition: opacity .42s ease; }
+.pm .pmx-anatomy-stack.is-leaving.is-gone { opacity: 0; }
+.pm #anatomy .pm-l3d-view { border-radius: 12px; }
+/* flat (explode 0) the sheets share one plane: a leader line from a label would point at nothing, so only a hovered
+   label keeps its line until the stack comes apart */
+.pm .pmx-anatomy-stack .pm-l3d-leaders > * { transition: opacity .3s ease; }
+.pm .pmx-anatomy-stack.is-flat .pm-l3d-leaders > :not(.is-on) { opacity: 0; }
+
+/* inspector line: a legend at rest, the layer card after a pick (or during the guided pass). Its height is fixed, so
+   the stage never jumps when the card replaces the legend (phones: see the narrow rules at the end). */
+.pm .pmx-anatomy-info {
+  --pmx-info-pad: 18px;
+  position: relative; display: grid; align-items: center; min-width: 0; height: var(--pmx-info-h, 92px);
+  margin: 2px -8px 0; padding: 0 var(--pmx-info-pad); border-top: 1px solid var(--pm-line); overflow: hidden;
+}
+.pm #anatomy { --pmx-info-h: 92px; }
+.pm .pmx-anatomy-legend {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 6px 22px; min-width: 0;
+  font: 500 13.5px/1.5 var(--pm-sans); color: var(--pm-tx);
+}
+.pm .pmx-anatomy-key { display: inline-flex; align-items: center; gap: 9px; }
+.pm .pmx-anatomy-key::before { content: ''; flex: none; width: 10px; height: 10px; border-radius: 3px; }
+.pm .pmx-anatomy-key.is-op::before { background: var(--pm-accent); box-shadow: 0 0 10px var(--pm-accent); }
+.pm .pmx-anatomy-key.is-static::before { background: var(--pm-paper); box-shadow: 0 0 8px color-mix(in srgb, var(--pm-paper) 60%, transparent); }
+.pm .pmx-anatomy-key.is-hint { color: var(--pm-mu); }
+.pm .pmx-anatomy-key.is-hint::before { display: none; }
+
+.pm .pmx-anatomy-card {
+  --pmx-c: var(--pm-paper);
+  position: relative; display: grid; grid-template-columns: minmax(150px, 200px) minmax(0, 1fr); gap: 6px 24px; align-items: start;
+  min-width: 0; padding-right: 44px;
+}
+.pm .pmx-anatomy-card-head { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 1px 11px; min-width: 0; }
+.pm .pmx-anatomy-badge {
+  grid-row: span 2; display: grid; place-items: center; width: 28px; height: 28px; border-radius: var(--pm-r-sm);
+  font: 700 13px/1 var(--pm-mono); font-variant-numeric: tabular-nums; color: var(--pm-bg); background: var(--pmx-c);
+  box-shadow: 0 0 14px -2px var(--pmx-c);
+}
+.pm .pmx-anatomy-card-name { font: 650 16px/1.25 var(--pm-sans); color: var(--pm-hi); }
+.pm .pmx-anatomy-card-kind { font: 500 12px/1.35 var(--pm-mono); color: var(--pm-mu); }
+.pm .pmx-anatomy-card.is-op .pmx-anatomy-card-kind { color: var(--pm-accent); }
+/* rule and budget side by side; the review round under them, at most two lines */
+.pm .pmx-anatomy-card-rows { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px 24px; min-width: 0; margin: 0; }
+.pm .pmx-anatomy-card-rows > div { display: flex; align-items: baseline; gap: 12px; min-width: 0; }
+.pm .pmx-anatomy-card-rows > div:nth-child(n+3) { grid-column: 1 / -1; }
+.pm .pmx-anatomy-card-rows dt { flex: none; font: 500 11px/1.6 var(--pm-mono); letter-spacing: .1em; text-transform: uppercase; color: var(--pm-mu); }
+.pm .pmx-anatomy-card-rows dd {
+  margin: 0; min-width: 0; font: 400 14px/1.5 var(--pm-sans); color: var(--pm-tx);
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden;
+}
+.pm .pmx-anatomy-card-rows dd b { font: 700 13px/1.5 var(--pm-mono); color: var(--pm-hi); }
+/* the review comment behind a layer: 'Round 2 · comment 5 · 10-14', then the author's words */
+.pm .pmx-anatomy-round { font-weight: 600; color: var(--pm-hi); font-variant-numeric: tabular-nums; }
+/* an off-screen copy of the card, used on phones to find the tallest card of a stack */
+.pm .pmx-anatomy-card.is-probe { position: absolute; top: 0; left: var(--pmx-info-pad); right: var(--pmx-info-pad); visibility: hidden; pointer-events: none; }
+.pm .pmx-anatomy-card.is-op .pmx-anatomy-card-rows dd b { color: var(--pm-accent); }
+.pm .pmx-anatomy-quote { color: var(--pm-hi); }
+.pm .pmx-anatomy-x {
+  position: absolute; right: 0; top: 50%; display: grid; place-items: center; width: 32px; height: 32px; margin: -16px 0 0; padding: 0;
+  border: 1px solid var(--pm-line-2); border-radius: 50%; background: transparent; color: var(--pm-tx); cursor: pointer;
+}
+.pm .pmx-anatomy-x:hover { color: var(--pm-hi); border-color: var(--pm-accent); }
+.pm .pmx-anatomy-x .pm-ico { width: 13px; height: 13px; }
+
+/* ---- folds */
+.pm .pmx-anatomy-p { max-width: 68ch; margin: 0 0 12px; font-size: 15px; line-height: 1.65; color: var(--pm-tx); }
+/* the link to the one budget table on the page (the Workflow lab) */
+.pm .pmx-anatomy-jump {
+  color: var(--pm-hi); text-decoration: underline; text-decoration-color: color-mix(in srgb, var(--pm-accent) 55%, transparent);
+  text-underline-offset: 3px;
+}
+.pm .pmx-anatomy-jump:hover { color: var(--pm-accent); text-decoration-color: currentColor; }
+.pm .pmx-anatomy-jump:focus-visible { outline: 2px solid var(--pm-accent); outline-offset: 3px; border-radius: 3px; }
+.pm .pm-fold-body .pm-intent { margin-bottom: 10px; }
+
+/* ---- Chinese */
+html[lang^="zh"] .pm .pmx-anatomy-card-rows dt { letter-spacing: .04em; text-transform: none; font-family: var(--pm-sans); font-size: 12.5px; }
+html[lang^="zh"] .pm .pmx-anatomy-card-rows dd { line-height: 1.65; }
+
+/* ---- narrow */
+@media (max-width: 1000px) {
+  .pm #anatomy { --pmx-info-h: 118px; }
+  .pm .pmx-anatomy-card { grid-template-columns: minmax(0, 1fr); gap: 8px; }
+}
+/* Phones: the inspector line has no fixed height. anatomy.js sets --pmx-info-h to the legend at rest, to the tallest
+   card of the stack during the guided pass (so the line grows once, not at every layer) and to the card itself when the
+   reader picks a layer. The 3D view keeps 380 px: at phone widths the stack is as wide as the view allows, so a taller
+   view would only add empty space above and below it. */
+@media (max-width: 640px) {
+  .pm #anatomy { --pmx-anatomy-h: 380px; --pmx-info-h: auto; }
+  .pm #anatomy .pm-scene { padding: 4px 4px 0; }
+  .pm .pmx-anatomy-info {
+    --pmx-info-pad: 14px;
+    align-items: start; margin: 2px -4px 0; padding: 12px var(--pmx-info-pad); transition: height .28s ease;
+  }
+  .pm .pmx-anatomy-card { grid-template-columns: minmax(0, 1fr); gap: 8px; padding-right: 0; }
+  /* the close button sits beside the head, so every row below uses the full width */
+  .pm .pmx-anatomy-card-head { padding-right: 44px; min-height: 32px; }
+  .pm .pmx-anatomy-x { top: 0; margin: 0; }
+  /* each row reads as one sentence: the label runs into its value; the comment row keeps up to three lines */
+  .pm .pmx-anatomy-card-rows { grid-template-columns: minmax(0, 1fr); gap: 5px; }
+  .pm .pmx-anatomy-card-rows > div {
+    display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden;
+    font: 400 14px/1.5 var(--pm-sans); color: var(--pm-tx);
+  }
+  .pm .pmx-anatomy-card-rows > div:last-child { -webkit-line-clamp: 3; }
+  .pm .pmx-anatomy-card-rows dt { display: inline; margin-right: 6px; }
+  .pm .pmx-anatomy-card-rows dd { display: inline; overflow: visible; -webkit-line-clamp: unset; }
+  .pm .pmx-anatomy-legend { display: grid; gap: 4px; font-size: 13px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pm .pmx-anatomy-stack.is-leaving { transition: none; }
+  .pm .pmx-anatomy-info { transition: none; }
+}

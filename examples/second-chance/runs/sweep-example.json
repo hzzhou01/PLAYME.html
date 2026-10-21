@@ -1,0 +1,3 @@
+{"cache": ["a", "b", "c", "d", "e", "f", "g", "h"],
+ "bits_before": {"a": [1, 0], "b": [0, 0], "c": [1, 1], "d": [0, 0], "e": [1, 0], "f": [0, 0], "g": [0, 0], "h": [1, 0]},
+ "evicted": "b", "note": "recorded from code/scb.py on a 20-request toy trace"}

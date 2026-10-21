@@ -1,0 +1,22 @@
+{
+  "_doc": "Every number, quote and paper reference the page shows. Values are the exact printed strings. See references/fidelity.md. fidelity.py checks every [data-fact=key] on the page against facts.<key>.value.",
+  "paper": { "title": "<the paper title>", "version": "<arXiv v2 source, yyyy-mm-dd>" },
+  "refs": {
+    "abstract":  { "en": "Abstract", "zh": "摘要",        "anchor": "first words of the abstract" },
+    "sec-arch":  { "en": "§4.3.1",   "zh": "第 4.3.1 节", "anchor": "first words of the section heading" },
+    "tab-main":  { "en": "Table 2",  "zh": "表 2",        "anchor": "first words of the caption" }
+  },
+  "facts": {
+    "main.gain":  { "value": "+12.4", "ref": "tab-main", "loc": "row Mean, column Δ", "unit": "points" },
+    "main.steps": { "value": "−41.0%", "ref": "abstract", "loc": "the sentence on steps per task" },
+    "device.out": { "value": "41.2K", "ref": "tab-main", "loc": "row Model B, column Out K", "note": "show exactly as printed" }
+  },
+  "quotes": {
+    "arch.runtime": { "en": "The runtime keeps one interpreter per task, …", "zh": "运行时为每个任务保留一个解释器，……", "ref": "sec-arch" }
+  },
+  "runs": {
+    "scope":  { "en": "the 12 real-device runs", "zh": "12 次真机运行" },
+    "models": { "a": "Model A", "b": "Model B" },
+    "tasks":  { "workbook": { "en": "workbook task", "zh": "工作簿任务" } }
+  }
+}

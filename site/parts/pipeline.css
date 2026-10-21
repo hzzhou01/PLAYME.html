@@ -1,0 +1,193 @@
+/* Part 05 · pipeline. Selectors start with .pm #pipeline or .pm .pmx-pipeline-.
+   Layout follows the scene's width (container query): eight stations in a row (≥ 1040 px), two rows of four
+   (600–1039 px), a vertical list (< 600 px). Route lanes: above the discs (rows) or left of them (list).
+   No transitions or animations: every visible change is driven by the player's clock (pipeline.js). */
+
+.pm #pipeline .pm-scene { padding-top: 12px; }
+
+.pm .pmx-pipeline { container: pmx-pipeline / inline-size; display: grid; grid-template-columns: minmax(0, 1fr); gap: 20px; min-width: 0; }
+.pm .pmx-pipeline-map { position: relative; min-width: 0; padding: 46px 0 2px; }
+.pm .pmx-pipeline-svg { position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+
+/* the soft light that follows the packet */
+.pm .pmx-pipeline-spot {
+  --pmx-spot: var(--pm-accent);
+  position: absolute; left: 0; top: 0; z-index: 0; width: 300px; height: 300px; margin: -150px 0 0 -150px; border-radius: 50%;
+  pointer-events: none; opacity: 0;
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--pmx-spot) 20%, transparent), color-mix(in srgb, var(--pmx-spot) 6%, transparent) 55%, transparent);
+}
+.pm .pmx-pipeline-spot[data-tone="user"] { --pmx-spot: var(--pm-user); }
+.pm .pmx-pipeline-spot[data-tone="warn"] { --pmx-spot: var(--pm-warn); }
+.pm .pmx-pipeline-spot[data-tone="info"] { --pmx-spot: var(--pm-info); }
+
+/* rail (the usual route, faint) and the routes travelled in this run */
+.pm .pmx-pipeline-rail path { fill: none; stroke: var(--pm-line-2); stroke-width: 1.5; stroke-dasharray: 2 6; stroke-linecap: round; }
+.pm .pmx-pipeline-seg { --pm-tone: var(--pm-accent); }
+.pm .pmx-pipeline-seg.pm-tone-user { --pm-tone: var(--pm-user); }
+.pm .pmx-pipeline-seg.pm-tone-warn { --pm-tone: var(--pm-warn); }
+.pm .pmx-pipeline-seg.pm-tone-info { --pm-tone: var(--pm-info); }
+.pm .pmx-pipeline-seg path { fill: none; stroke: var(--pm-tone); stroke-linecap: round; stroke-linejoin: round; }
+.pm .pmx-pipeline-seg-line { stroke-width: 2; }
+.pm .pmx-pipeline-seg-glow { stroke-width: 8; opacity: .16; }
+.pm .pmx-pipeline-seg .pmx-pipeline-arrow { fill: var(--pm-tone); stroke: none; filter: drop-shadow(0 0 4px var(--pm-tone)); }
+
+/* the packet: a bright core, a blurred halo and a fading trail */
+.pm .pmx-pipeline-packet { --pm-tone: var(--pm-accent); opacity: 0; }
+.pm .pmx-pipeline-packet.pm-tone-user { --pm-tone: var(--pm-user); }
+.pm .pmx-pipeline-packet.pm-tone-warn { --pm-tone: var(--pm-warn); }
+.pm .pmx-pipeline-packet.pm-tone-info { --pm-tone: var(--pm-info); }
+.pm .pmx-pipeline-trail { fill: var(--pm-tone); }
+.pm .pmx-pipeline-halo { fill: var(--pm-tone); opacity: .6; }
+.pm .pmx-pipeline-core { fill: var(--pm-tone); }
+.pm .pmx-pipeline-core-hi { fill: var(--pm-hi); }
+
+/* ------------------------------------------------------------------ stations */
+
+.pm .pmx-pipeline-stations {
+  position: relative; z-index: 1; display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 0 16px;
+  margin: 0; padding: 0; list-style: none;
+}
+.pm .pmx-pipeline-st { --pm-tone: var(--pm-accent); display: grid; grid-template-columns: minmax(0, 1fr); align-content: start; gap: 13px; min-width: 0; }
+.pm .pmx-pipeline-st[data-state="flag"] { --pm-tone: var(--pm-warn); }
+
+.pm .pmx-pipeline-node { position: relative; display: block; width: 48px; height: 48px; }
+.pm .pmx-pipeline-disc {
+  position: absolute; inset: 0; display: grid; place-items: center; border-radius: 50%; color: var(--pm-mu);
+  background: radial-gradient(circle at 50% 26%, color-mix(in srgb, var(--pm-hi) 9%, transparent), transparent 66%), var(--pm-bg-2);
+  box-shadow: 0 0 0 1px var(--pm-line-2), 0 12px 26px -14px var(--pm-bg);
+}
+.pm .pmx-pipeline-ico { width: 22px; height: 22px; }
+.pm .pmx-pipeline-ring { position: absolute; left: -6px; top: -6px; width: calc(100% + 12px); height: calc(100% + 12px); overflow: visible; transform: rotate(-90deg); pointer-events: none; }
+.pm .pmx-pipeline-ring-bg { fill: none; stroke: none; stroke-width: 2; }
+.pm .pmx-pipeline-ring-c { fill: none; stroke: var(--pm-tone); stroke-width: 2.4; stroke-linecap: round; stroke-dasharray: 100; stroke-dashoffset: 100; opacity: 0; }
+.pm .pmx-pipeline-ripple { position: absolute; inset: 0; border-radius: 50%; opacity: 0; pointer-events: none; box-shadow: 0 0 0 2px var(--pm-tone), 0 0 22px 2px color-mix(in srgb, var(--pm-tone) 70%, transparent); }
+.pm .pmx-pipeline-led {
+  position: absolute; right: -2px; top: -2px; width: 10px; height: 10px; border-radius: 50%;
+  background: var(--pm-bg-2); box-shadow: 0 0 0 2px var(--pm-bg-2), inset 0 0 0 1.5px var(--pm-line-2);
+}
+
+.pm .pmx-pipeline-txt { display: grid; grid-template-columns: minmax(0, 1fr); gap: 3px; min-width: 0; }
+.pm .pmx-pipeline-name { display: flex; align-items: baseline; gap: 7px; min-width: 0; font: 600 15px/1.3 var(--pm-sans); color: var(--pm-tx); }
+.pm .pmx-pipeline-num { flex: none; font: 500 11px/1 var(--pm-mono); letter-spacing: .04em; color: var(--pm-mu); }
+.pm .pmx-pipeline-role { min-height: 2.8em; font-size: 12.5px; line-height: 1.4; color: var(--pm-mu); text-wrap: balance; }
+.pm .pmx-pipeline-files { display: grid; grid-template-columns: minmax(0, 1fr); align-content: start; gap: 2px; min-height: calc(3 * 1.6 * 12px + 4px); margin: 6px 0 0; padding: 0; list-style: none; }
+
+/* file lines: plain mono text with a glyph (never boxed: rule R5) */
+.pm .pmx-pipeline-file {
+  --pmx-flash: 0; display: grid; grid-template-columns: 13px minmax(0, 1fr); align-items: start; column-gap: 6px; min-width: 0;
+  font: 500 12px/1.6 var(--pm-mono); color: var(--pm-tx); white-space: nowrap;
+}
+.pm .pmx-pipeline-gs { display: inline-grid; flex: none; width: 13px; height: 13px; margin-top: .3em; color: var(--pm-mu); }
+.pm .pmx-pipeline-fbody { display: flex; flex-wrap: wrap; column-gap: 7px; min-width: 0; }
+.pm .pmx-pipeline-g { grid-area: 1 / 1; width: 13px; height: 13px; }
+.pm .pmx-pipeline-g.is-flag { display: none; }
+.pm .pmx-pipeline-fname { min-width: 0; }
+.pm .pmx-pipeline-tag { display: inline-grid; opacity: 0; }
+.pm .pmx-pipeline-tag:empty { display: none; }
+.pm .pmx-pipeline-tagv { grid-area: 1 / 1; font-weight: 600; color: var(--pm-tone); text-shadow: 0 0 12px color-mix(in srgb, var(--pm-tone) 45%, transparent); }
+
+.pm .pmx-pipeline-file[data-state="old"] { color: var(--pm-mu); }
+.pm .pmx-pipeline-file[data-state="fresh"], .pm .pmx-pipeline-file[data-state="done"], .pm .pmx-pipeline-file[data-state="flag"] {
+  text-shadow: 0 0 calc(var(--pmx-flash) * 14px) color-mix(in srgb, var(--pm-accent) calc(var(--pmx-flash) * 90%), transparent);
+}
+.pm .pmx-pipeline-file[data-state="fresh"] { color: var(--pm-hi); }
+.pm .pmx-pipeline-file[data-state="fresh"] .pmx-pipeline-gs, .pm .pmx-pipeline-file[data-state="done"] .pmx-pipeline-gs { color: var(--pm-accent); }
+.pm .pmx-pipeline-file[data-state="done"] { color: var(--pm-tx); }
+.pm .pmx-pipeline-file[data-kind="in"][data-state="done"] .pmx-pipeline-gs, .pm .pmx-pipeline-file[data-kind="dir"][data-state="done"] .pmx-pipeline-gs,
+.pm .pmx-pipeline-file[data-kind="eye"][data-state="done"] .pmx-pipeline-gs { color: var(--pm-tx); }
+.pm .pmx-pipeline-file[data-kind="check"][data-state="fresh"] .pmx-pipeline-gs, .pm .pmx-pipeline-file[data-kind="check"][data-state="done"] .pmx-pipeline-gs { color: var(--pm-ok); }
+.pm .pmx-pipeline-file[data-state="flag"] { color: var(--pm-hi); }
+.pm .pmx-pipeline-file[data-state="flag"] .pmx-pipeline-gs { color: var(--pm-warn); }
+.pm .pmx-pipeline-file[data-state="flag"] .pmx-pipeline-g.is-check { display: none; }
+.pm .pmx-pipeline-file[data-state="flag"] .pmx-pipeline-g.is-flag { display: block; }
+
+/* station states: idle (first build, before it runs) · old (built earlier) · run · done · flag · skip */
+.pm .pmx-pipeline-st[data-state="old"] .pmx-pipeline-disc { color: var(--pm-tx); }
+.pm .pmx-pipeline-st[data-state="old"] .pmx-pipeline-led { background: color-mix(in srgb, var(--pm-ok) 38%, var(--pm-bg-2)); box-shadow: 0 0 0 2px var(--pm-bg-2); }
+.pm .pmx-pipeline-st[data-state="run"] .pmx-pipeline-disc {
+  color: var(--pm-tone);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--pm-tone) 75%, transparent), 0 0 28px -2px color-mix(in srgb, var(--pm-tone) 60%, transparent), 0 12px 26px -14px var(--pm-bg);
+}
+.pm .pmx-pipeline-st[data-state="run"] .pmx-pipeline-ring-bg { stroke: color-mix(in srgb, var(--pm-tone) 16%, transparent); }
+.pm .pmx-pipeline-st[data-state="run"] .pmx-pipeline-ring-c { opacity: 1; }
+.pm .pmx-pipeline-st[data-state="run"] .pmx-pipeline-led { background: var(--pm-tone); box-shadow: 0 0 0 2px var(--pm-bg-2), 0 0 10px var(--pm-tone); }
+.pm .pmx-pipeline-st[data-state="run"] .pmx-pipeline-name,
+.pm .pmx-pipeline-st[data-state="done"] .pmx-pipeline-name,
+.pm .pmx-pipeline-st[data-state="flag"] .pmx-pipeline-name { color: var(--pm-hi); }
+.pm .pmx-pipeline-st[data-state="run"] .pmx-pipeline-role { color: var(--pm-tx); }
+.pm .pmx-pipeline-st:is([data-state="done"], [data-state="flag"]) .pmx-pipeline-disc {
+  color: var(--pm-hi);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--pm-tone) 55%, transparent), 0 0 18px -6px color-mix(in srgb, var(--pm-tone) 70%, transparent), 0 12px 26px -14px var(--pm-bg);
+}
+.pm .pmx-pipeline-st:is([data-state="done"], [data-state="flag"]) .pmx-pipeline-ring-c { opacity: .45; }
+.pm .pmx-pipeline-st[data-state="flag"] .pmx-pipeline-disc { color: var(--pm-warn); }
+.pm .pmx-pipeline-st[data-state="done"] .pmx-pipeline-led { background: var(--pm-ok); box-shadow: 0 0 0 2px var(--pm-bg-2), 0 0 10px var(--pm-ok); }
+.pm .pmx-pipeline-st[data-state="flag"] .pmx-pipeline-led { background: var(--pm-warn); box-shadow: 0 0 0 2px var(--pm-bg-2), 0 0 10px var(--pm-warn); }
+.pm .pmx-pipeline-st[data-state="skip"] .pmx-pipeline-node { opacity: .5; }
+.pm .pmx-pipeline-st[data-state="skip"] .pmx-pipeline-disc { box-shadow: 0 0 0 1px var(--pm-line); outline: 1px dashed var(--pm-line-2); outline-offset: 4px; }
+.pm .pmx-pipeline-st[data-state="skip"] .pmx-pipeline-name { color: var(--pm-mu); }
+.pm .pmx-pipeline-st[data-state="skip"] .pmx-pipeline-file { opacity: .7; }
+
+/* ------------------------------------------------------------------ Claude Code transcript */
+
+.pm .pmx-pipeline-term .pm-dev-term { --pm-dev-glow: color-mix(in srgb, var(--pm-accent) 18%, transparent); }
+.pm .pmx-pipeline-term .pm-term { font-size: 12.5px; }
+.pm .pmx-pipeline-tl b { font-weight: 700; color: var(--pm-hi); }
+.pm .pmx-pipeline-tdot { color: var(--pm-ok); }
+.pm .pmx-pipeline-tsub { color: var(--pm-mu); white-space: pre; }
+.pm .pmx-pipeline-caret { display: inline-block; width: .55em; height: 1.15em; margin-left: 1px; vertical-align: -.22em; background: var(--pm-accent); opacity: .85; }
+
+/* ------------------------------------------------------------------ the bar: short scenario labels on phones */
+
+.pm #pipeline .pmx-pipeline-short { display: none; }
+@media (max-width: 520px) {
+  .pm #pipeline .pmx-pipeline-long { display: none; }
+  .pm #pipeline .pmx-pipeline-short { display: inline; }
+}
+
+/* ------------------------------------------------------------------ two rows of four */
+
+@container pmx-pipeline (max-width: 1039px) {
+  .pm .pmx-pipeline-map { padding: 46px 28px 2px 0; }
+  .pm .pmx-pipeline-stations { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 70px 18px; }
+  .pm .pmx-pipeline-role { min-height: 0; }
+}
+
+/* ------------------------------------------------------------------ vertical list */
+
+@container pmx-pipeline (max-width: 599px) {
+  .pm .pmx-pipeline-map { padding: 2px 0 2px 36px; }
+  .pm .pmx-pipeline-spot { width: 220px; height: 220px; margin: -110px 0 0 -110px; }
+  .pm .pmx-pipeline-stations { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+  .pm .pmx-pipeline-st { grid-template-columns: 38px minmax(0, 1fr); align-items: start; gap: 0 14px; }
+  .pm .pmx-pipeline-node { width: 38px; height: 38px; }
+  .pm .pmx-pipeline-ico { width: 18px; height: 18px; }
+  .pm .pmx-pipeline-led { width: 9px; height: 9px; right: -2px; top: -2px; }
+  .pm .pmx-pipeline-txt { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 10px; padding-top: 1px; }
+  .pm .pmx-pipeline-name { font-size: 14.5px; }
+  .pm .pmx-pipeline-role { min-height: 0; font-size: 12.5px; }
+  .pm .pmx-pipeline-files { display: flex; flex-wrap: wrap; flex-basis: 100%; gap: 0 14px; min-height: 0; margin-top: 2px; }
+  .pm .pmx-pipeline-fbody { flex-wrap: nowrap; }
+}
+
+/* ------------------------------------------------------------------ folds: plain tables */
+
+.pm .pmx-pipeline-tablewrap { min-width: 0; max-width: 780px; overflow-x: auto; overscroll-behavior-x: contain; }
+.pm .pmx-pipeline-tablewrap.is-files { max-width: none; }
+.pm .pmx-pipeline-table { width: 100%; border-collapse: collapse; font-size: 14px; line-height: 1.5; }
+.pm .pmx-pipeline-table th, .pm .pmx-pipeline-table td { padding: 7px 18px 7px 0; border-bottom: 1px solid var(--pm-line); text-align: left; vertical-align: top; }
+.pm .pmx-pipeline-table thead th { padding-top: 0; font: 500 11px/1.4 var(--pm-mono); letter-spacing: .1em; text-transform: uppercase; color: var(--pm-mu); }
+.pm .pmx-pipeline-table tbody th { font-weight: 600; color: var(--pm-hi); white-space: nowrap; }
+.pm .pmx-pipeline-table td { color: var(--pm-tx); }
+.pm .pmx-pipeline-table code { font: 500 12.5px/1.5 var(--pm-mono); color: var(--pm-hi); white-space: nowrap; }
+.pm .pmx-pipeline-tablewrap.is-files td:nth-child(2) { white-space: nowrap; }
+.pm .pm-fold-body > p code { font: 500 .92em var(--pm-mono); color: var(--pm-hi); }
+html[lang^="zh"] .pm .pmx-pipeline-table thead th { letter-spacing: .04em; text-transform: none; font-size: 12px; }
+html[lang^="zh"] .pm .pmx-pipeline-num { letter-spacing: 0; }
+/* Chinese sublabels break at 、，and spaces, not inside a word (控件 stays whole); a run too long still wraps */
+html[lang^="zh"] .pm .pmx-pipeline-role { word-break: keep-all; overflow-wrap: anywhere; }
+@media (max-width: 640px) {
+  .pm .pmx-pipeline-table { font-size: 13.5px; }
+  .pm .pmx-pipeline-table th, .pm .pmx-pipeline-table td { padding-right: 12px; }
+  .pm .pmx-pipeline-tablewrap.is-files td:nth-child(2) { white-space: normal; }
+}

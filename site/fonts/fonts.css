@@ -1,0 +1,4 @@
+/* Subset, instanced woff2 builds of three SIL OFL 1.1 fonts (licence: fonts/OFL.txt). Latin only; Chinese uses system fonts. */
+@font-face { font-family: 'Archivo'; src: url('Archivo-Expanded.woff2') format('woff2'); font-weight: 500 900; font-stretch: 112% 125%; font-display: swap; }
+@font-face { font-family: 'Instrument Sans'; src: url('InstrumentSans.woff2') format('woff2'); font-weight: 400 700; font-display: swap; }
+@font-face { font-family: 'JetBrains Mono'; src: url('JetBrainsMono.woff2') format('woff2'); font-weight: 400 800; font-display: swap; }

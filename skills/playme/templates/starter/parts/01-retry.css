@@ -1,0 +1,25 @@
+/* Scene styles for part 01 (sender → noisy link → receiver). Selectors stay under .pm. */
+.pm .rt { position: relative; height: 168px; }
+.pm .rt-wire { position: absolute; left: 10%; right: 10%; top: 78px; height: 2px; border-radius: 2px; background: var(--pm-line-2); }
+.pm .rt-noise { position: absolute; left: 38%; width: 24%; top: 66px; height: 26px; color: var(--pm-warn); opacity: .75; }
+.pm .rt-node { position: absolute; top: 48px; display: grid; justify-items: center; gap: 10px; transform: translateX(-50%); }
+.pm .rt-disc {
+  display: grid; place-items: center; width: 62px; height: 62px; border-radius: 50%; color: var(--pm-hi);
+  background: radial-gradient(circle at 50% 30%, rgba(150, 162, 230, .16), var(--pm-bg-2) 70%); box-shadow: 0 0 0 1px var(--pm-line-2), 0 10px 26px -12px #000;
+}
+.pm .rt-disc svg { width: 26px; height: 26px; }
+.pm .rt-link .rt-disc { width: 44px; height: 44px; margin-top: 9px; color: var(--pm-warn); }
+.pm .rt-link .rt-disc svg { width: 20px; height: 20px; }
+.pm .rt-name { font: 500 12.5px/1.3 var(--pm-mono); color: var(--pm-tx); white-space: nowrap; }
+.pm .rt-link .rt-name { margin-top: 9px; }
+.pm .rt-recv.is-got .rt-disc { color: var(--pm-ok); box-shadow: 0 0 0 2px var(--pm-ok), 0 0 30px -4px var(--pm-ok); }
+.pm .rt-recv.is-missing .rt-disc { color: var(--pm-err); box-shadow: 0 0 0 2px var(--pm-err), 0 0 24px -6px var(--pm-err); }
+.pm .rt-packet {
+  position: absolute; top: 79px; left: 10%; z-index: 2; width: 18px; height: 18px; margin: -9px 0 0 -9px; border-radius: 5px;
+  background: var(--pm-accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--pm-accent) 25%, transparent), 0 0 18px var(--pm-accent);
+}
+.pm .rt-packet.is-lost { background: var(--pm-err); box-shadow: 0 0 0 3px color-mix(in srgb, var(--pm-err) 25%, transparent), 0 0 18px var(--pm-err); }
+.pm .rt-burst { position: absolute; top: 79px; left: 50%; width: 30px; height: 30px; margin: -15px 0 0 -15px; border: 2px solid var(--pm-err); border-radius: 50%; opacity: 0; pointer-events: none; }
+.pm .rt-tries { position: absolute; left: 0; top: 0; font: 500 12px/1.4 var(--pm-mono); color: var(--pm-mu); }
+.pm .rt-tries b { font-weight: 500; color: var(--pm-hi); }
+

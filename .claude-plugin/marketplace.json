@@ -1,0 +1,15 @@
+{
+  "name": "playme",
+  "description": "PLAYME: interactive project pages from papers, code and run logs.",
+  "owner": { "name": "hzzhou01" },
+  "plugins": [
+    {
+      "name": "playme",
+      "source": "./",
+      "description": "Turn a paper or a project (code, docs, run logs) into one offline, interactive page where readers operate the project's mechanisms.",
+      "version": "1.0.0",
+      "category": "documentation",
+      "tags": ["interactive", "paper", "project-page", "three.js"]
+    }
+  ]
+}

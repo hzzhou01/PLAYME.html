@@ -1,0 +1,424 @@
+/* Part 01 · read-or-play — styles. Every selector starts with .pm #read-or-play.
+ * Two materials: the README pane is paper (--pm-paper, --pm-paper-ink: static, printed), the PLAYME pane is a screen
+ * glowing on the dark bench. Colours come from the kit / site tokens; the simulated app screens inside the Mac (the
+ * flight-booking page, the spreadsheet toolbar) are light like real screens and use literal colours, as the kit's
+ * device styles do. Sizes inside the desktop are logical pixels of the 1152 × 720 screen (scaled as a whole). */
+
+/* ======================================================================= scene layout */
+
+/* No scroll anchoring inside this part: when the stage's bar sticks and turns compact (phones), Chrome would scroll the
+   page by the bar's change in height to hold the scene still; that moves the stage back across the line where the bar
+   sticks, and the page can flip between the two positions forever. The page header line stays put either way. */
+.pm #read-or-play { overflow-anchor: none; }
+.pm #read-or-play .pm-scene.rp-scene { padding: 16px 22px 18px; }
+/* the lead fits one line on wide screens (the hero lab sits under the headline; every pixel of height counts) */
+.pm #read-or-play .pm-lead { max-width: 62em; }
+.pm #read-or-play .rp {
+  display: grid; grid-template-columns: minmax(0, 34fr) minmax(0, 66fr); gap: 16px 28px; align-items: stretch; min-width: 0;
+}
+
+/* ======================================================================= README pane: a rendered markdown file on paper */
+
+.pm #read-or-play .rp-readme { display: flex; flex-direction: column; min-width: 0; }
+.pm #read-or-play .rp-tabbar { flex: none; display: flex; align-items: flex-end; height: 30px; }
+.pm #read-or-play .rp-tab {
+  position: relative; display: inline-flex; align-items: center; gap: 7px; height: 30px; padding: 1px 15px 0 12px;
+  border-radius: 9px 9px 0 0; background: var(--pm-paper); color: var(--pm-paper-ink);
+  font: 600 12px/1 var(--pm-mono); letter-spacing: .01em;
+}
+.pm #read-or-play .rp-tab .rp-gl { color: color-mix(in srgb, var(--pm-paper-ink) 70%, transparent); }
+/* the tab flows into the sheet: a small inverse curve on its right foot */
+.pm #read-or-play .rp-tab::after {
+  content: ''; position: absolute; right: -9px; bottom: 0; width: 9px; height: 9px;
+  background: radial-gradient(circle at 100% 0, transparent 8.5px, var(--pm-paper) 9px);
+}
+.pm #read-or-play .rp-paper {
+  position: relative; flex: 1 1 auto; display: flex; flex-direction: column; min-height: 0; container: rp-paper / inline-size;
+  padding: 22px 26px 16px 30px; border-radius: 0 12px 12px 12px; color: var(--pm-paper-ink);
+  background:
+    radial-gradient(130% 70% at 0% 0%, color-mix(in srgb, var(--pm-hi) 34%, transparent), transparent 62%),
+    repeating-linear-gradient(0deg, color-mix(in srgb, var(--pm-paper-ink) 2.4%, transparent) 0 1px, transparent 1px 4px),
+    var(--pm-paper);
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--pm-paper-ink) 8%, transparent),
+    inset 0 -30px 40px -40px color-mix(in srgb, var(--pm-paper-ink) 30%, transparent),
+    0 34px 60px -34px color-mix(in srgb, var(--pm-bg) 96%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--pm-bg) 60%, transparent);
+}
+.pm #read-or-play .rp-md-h {
+  position: relative; margin: 0 0 13px; padding-bottom: 9px;
+  border-bottom: 1px solid color-mix(in srgb, var(--pm-paper-ink) 16%, transparent);
+  font: 700 21px/1.25 var(--pm-sans); letter-spacing: -.012em; color: var(--pm-paper-ink); text-wrap: balance;
+}
+/* a faint "#": this is markdown, rendered */
+.pm #read-or-play .rp-md-h::before {
+  content: '#'; position: absolute; left: -17px; top: 1px; font: 500 16px/1.5 var(--pm-mono);
+  color: color-mix(in srgb, var(--pm-paper-ink) 26%, transparent);
+}
+.pm #read-or-play .rp-md-p {
+  margin: 0; font: 400 15.5px/1.72 var(--pm-sans); color: color-mix(in srgb, var(--pm-paper-ink) 94%, transparent); text-wrap: pretty;
+}
+
+.pm #read-or-play .rp-md-pre {
+  margin: 14px 0 0; padding: 8px 12px; overflow-x: auto; border-radius: 6px; white-space: pre;
+  background: color-mix(in srgb, var(--pm-paper-ink) 6%, var(--pm-paper)); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--pm-paper-ink) 10%, transparent);
+  font: 500 12.5px/1.5 var(--pm-mono); color: var(--pm-paper-ink); transition: box-shadow .35s;
+  scrollbar-width: thin;
+}
+.pm #read-or-play .rp-md-pre code { font: inherit; }
+.pm #read-or-play .rp-md-pre .is-two { display: none; }
+@container rp-paper (max-width: 330px) {
+  .pm #read-or-play .rp-md-pre .is-one { display: none; }
+  .pm #read-or-play .rp-md-pre .is-two { display: inline; }
+}
+.pm #read-or-play .rp-md-pre span { color: color-mix(in srgb, var(--pm-paper-ink) 62%, var(--pm-err)); }
+.pm #read-or-play .rp-md-pre.is-now { box-shadow: inset 3px 0 0 color-mix(in srgb, var(--pm-ok) 80%, var(--pm-paper-ink)), inset 0 0 0 1px color-mix(in srgb, var(--pm-paper-ink) 10%, transparent); }
+
+/* the marker: one sentence sweeps in at the moment the scene shows it; earlier ones stay lightly marked */
+.pm #read-or-play .rp-s {
+  --k: 0; --hc: var(--pm-warn); --ha: 72%;
+  --hl: color-mix(in srgb, var(--hc) var(--ha), transparent);
+  padding: .08em .02em; border-radius: 3px;
+  background-image: linear-gradient(transparent 14%, var(--hl) 14%, var(--hl) 92%, transparent 92%);
+  background-repeat: no-repeat; background-position: 0 0; background-size: calc(var(--k) * 100%) 100%;
+  transition: color .35s;
+}
+.pm #read-or-play .rp-s2 { --hc: var(--pm-err); --ha: 46%; }
+.pm #read-or-play .rp-s3 { --hc: var(--pm-ok); --ha: 52%; }
+.pm #read-or-play .rp-s.is-past { --ha: 30%; }
+.pm #read-or-play .rp-s2.is-past { --ha: 22%; }
+.pm #read-or-play .rp-readme.is-live .rp-s:not(.is-now):not(.is-past) { color: color-mix(in srgb, var(--pm-paper-ink) 52%, transparent); }
+.pm #read-or-play .rp-s.is-now { color: var(--pm-paper-ink); }
+
+/* footnote markers tying sentence 2 to run A and sentence 3 to run B: plain superscript letters (not keys, not buttons) */
+.pm #read-or-play .rp-ref {
+  margin-left: 2px; vertical-align: .55em; line-height: 0;
+  font: 700 10.5px/0 var(--pm-mono); color: color-mix(in srgb, var(--pm-paper-ink) 45%, transparent); transition: color .3s;
+}
+.pm #read-or-play .rp-ref.is-a.is-on { color: color-mix(in srgb, var(--pm-err) 70%, var(--pm-paper-ink)); }
+.pm #read-or-play .rp-ref.is-b.is-on { color: color-mix(in srgb, var(--pm-ok) 45%, var(--pm-paper-ink)); }
+
+/* Figure 1: two ink diagrams, static */
+.pm #read-or-play .rp-fig { display: grid; justify-items: center; gap: 6px; margin: auto 0 0; padding-top: 16px; }
+.pm #read-or-play .rp-fig-svg { display: block; width: 100%; max-width: 320px; height: auto; overflow: visible; color: var(--pm-paper-ink); }
+.pm #read-or-play .rp-fig figcaption {
+  font: italic 400 12.5px/1.45 var(--pm-sans); text-align: center; color: color-mix(in srgb, var(--pm-paper-ink) 72%, transparent);
+}
+.pm #read-or-play .rp-fig-svg .f-back { fill: color-mix(in srgb, var(--pm-paper-ink) 8%, var(--pm-paper)); stroke: currentColor; stroke-width: 1.3; }
+.pm #read-or-play .rp-fig-svg .f-front { fill: var(--pm-paper); stroke: currentColor; stroke-width: 1.6; }
+.pm #read-or-play .rp-fig-svg .f-hatch { fill: url(#rp-hatch); }
+.pm #read-or-play .rp-fig-svg .f-hatch-line { stroke: color-mix(in srgb, var(--pm-paper-ink) 13%, transparent); stroke-width: 1.1; }
+.pm #read-or-play .rp-fig-svg .f-line { fill: none; stroke: currentColor; stroke-width: 1.2; }
+.pm #read-or-play .rp-fig-svg .f-thin { fill: none; stroke: color-mix(in srgb, var(--pm-paper-ink) 32%, transparent); stroke-width: .8; }
+.pm #read-or-play .rp-fig-svg .f-dot { fill: color-mix(in srgb, var(--pm-paper-ink) 45%, transparent); }
+.pm #read-or-play .rp-fig-svg .f-btn { fill: color-mix(in srgb, var(--pm-paper-ink) 26%, var(--pm-paper)); stroke: currentColor; stroke-width: 1.2; }
+.pm #read-or-play .rp-fig-svg .f-xray { fill: none; stroke: currentColor; stroke-width: 1.4; stroke-dasharray: 3 2.2; }
+.pm #read-or-play .rp-fig-svg .f-arrow { fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; }
+.pm #read-or-play .rp-fig-svg .f-dash { stroke-dasharray: 4.5 3.2; }
+.pm #read-or-play .rp-fig-svg .f-head,
+.pm #read-or-play .rp-fig-svg .f-mark { fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.pm #read-or-play .rp-fig-svg .f-mark { stroke-width: 2.2; }
+.pm #read-or-play .rp-fig-svg .f-label { font: italic 500 12px var(--pm-sans); fill: color-mix(in srgb, var(--pm-paper-ink) 82%, transparent); }
+
+/* ======================================================================= PLAYME pane: a screen glowing on the bench */
+
+.pm #read-or-play .rp-play {
+  --rp-gc: var(--pm-accent); --rp-ga: .5;
+  position: relative; isolation: isolate; display: flex; flex-direction: column; min-width: 0;
+}
+.pm #read-or-play .rp-play[data-glow="agent"] { --rp-gc: var(--pm-agent); }
+.pm #read-or-play .rp-play[data-glow="err"] { --rp-gc: var(--pm-err); }
+.pm #read-or-play .rp-play[data-glow="ok"] { --rp-gc: var(--pm-ok); }
+/* the glow behind the laptop: its colour follows the story (cyan, violet, coral, green) */
+.pm #read-or-play .rp-play::before {
+  content: ''; position: absolute; z-index: -1; left: 4%; right: 4%; top: 12%; height: 66%; border-radius: 50%; pointer-events: none;
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--rp-gc) 46%, transparent), transparent);
+  opacity: var(--rp-ga); filter: blur(26px);
+}
+.pm #read-or-play .rp-head {
+  flex: none; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 4px 16px;
+  min-height: 30px; padding: 0 3.4% 2px;
+}
+.pm #read-or-play .rp-file { display: inline-flex; align-items: center; gap: 9px; font: 600 12px/1 var(--pm-mono); color: var(--pm-hi); letter-spacing: .01em; }
+.pm #read-or-play .rp-live {
+  width: 7px; height: 7px; border-radius: 50%; background: var(--pm-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--pm-accent) 20%, transparent), 0 0 10px var(--pm-accent);
+}
+.pm #read-or-play[data-pm-state="running"] .rp-live { animation: rp-live 1.4s ease-in-out infinite; }
+@keyframes rp-live { 50% { box-shadow: 0 0 0 6px color-mix(in srgb, var(--pm-accent) 8%, transparent), 0 0 16px var(--pm-accent); } }
+.pm #read-or-play .rp-runs { display: inline-flex; flex-wrap: wrap; gap: 4px 16px; font: 500 11.5px/1.3 var(--pm-mono); color: var(--pm-mu); }
+.pm #read-or-play .rp-run { white-space: nowrap; transition: color .3s; }
+.pm #read-or-play .rp-run b { margin-right: 6px; font-weight: 700; color: var(--pm-tx); }
+.pm #read-or-play .rp-run[data-state="live"] { color: var(--pm-hi); }
+.pm #read-or-play .rp-run[data-state="live"] b { color: var(--pm-agent); }
+.pm #read-or-play .rp-run[data-state="bad"],
+.pm #read-or-play .rp-run[data-state="bad"] b { color: var(--pm-err); }
+.pm #read-or-play .rp-run[data-state="good"],
+.pm #read-or-play .rp-run[data-state="good"] b { color: var(--pm-ok); }
+.pm #read-or-play .rp-run::after { content: ' ✓'; visibility: hidden; }
+.pm #read-or-play .rp-run[data-state="bad"]::after { content: ' ✗'; visibility: visible; }
+.pm #read-or-play .rp-run[data-state="good"]::after { content: ' ✓'; visibility: visible; }
+
+.pm #read-or-play .rp-mac { flex: none; min-width: 0; }
+.pm #read-or-play .rp-code { flex: none; margin-top: auto; padding-top: 12px; min-width: 0; }
+.pm #read-or-play .rp-code .pm-code-pre { padding: 7px 0; }
+.pm #read-or-play .rp-code .pm-focus { transition: box-shadow .4s, background .4s; }
+.pm #read-or-play .rp-code.is-b .pm-focus {
+  background: color-mix(in srgb, var(--pm-accent) 26%, transparent);
+  box-shadow: 0 0 22px -2px color-mix(in srgb, var(--pm-accent) 95%, transparent);
+}
+
+/* ======================================================================= inside the desktop (logical px) */
+
+/* effects layer of this part, above the windows and below the pointers */
+.pm #read-or-play .rp-fx { position: absolute; inset: 0; z-index: 6; pointer-events: none; }
+.pm #read-or-play .rp-xwin,
+.pm #read-or-play .rp-xsave { --rp-t: var(--pm-s-agent); position: absolute; opacity: 0; }
+.pm #read-or-play .rp-xwin[data-tone="ok"],
+.pm #read-or-play .rp-xsave[data-tone="ok"] { --rp-t: var(--pm-s-ok); }
+.pm #read-or-play .rp-xwin {
+  border: calc(2px * var(--pm-ui)) dashed var(--rp-t); border-radius: 12px;
+  background: color-mix(in srgb, var(--rp-t) 5%, transparent);
+}
+/* Save, seen through Chrome (x-ray) */
+.pm #read-or-play .rp-xsave {
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  border: calc(2px * var(--pm-ui)) dashed var(--rp-t); border-radius: 8px; color: var(--rp-t);
+  background: color-mix(in srgb, var(--rp-t) 14%, rgba(255, 255, 255, .82));
+  box-shadow: 0 0 0 calc(3px * var(--pm-ui)) color-mix(in srgb, var(--rp-t) 22%, transparent), 0 0 calc(26px * var(--pm-ui)) color-mix(in srgb, var(--rp-t) 65%, transparent);
+  font-size: 14px; font-weight: 700;
+}
+/* tags: short labels that keep a legible size at any scale (like the pointer labels) */
+.pm #read-or-play .rp-tag { --rp-t: var(--pm-s-agent); position: absolute; width: 0; height: 0; opacity: 0; }
+.pm #read-or-play .rp-tag.is-ok { --rp-t: var(--pm-s-ok); }
+.pm #read-or-play .rp-tag > span {
+  position: absolute; left: 0; top: 0; transform-origin: 0 0; transform: scale(var(--pm-ui)) translateY(-50%);
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 9px 4px; border-radius: 6px; background: var(--rp-t); color: #fff; white-space: nowrap;
+  font: 600 12.5px/1.25 var(--pm-sans); box-shadow: 0 0 0 1.5px #fff, 0 4px 12px rgba(0, 0, 0, .25);
+}
+/* a tag beside the thing it names, with a small notch pointing back at it (B: the status bar of Report.xlsx) */
+.pm #read-or-play .rp-tag.is-left > span::before {
+  content: ''; position: absolute; left: -5px; top: 50%; width: 9px; height: 9px; margin-top: -4.5px; border-radius: 1.5px;
+  background: var(--rp-t); transform: rotate(45deg); box-shadow: -1.5px 1.5px 0 0 #fff;
+}
+.pm #read-or-play .rp-tag.is-left > span { margin-left: 4px; }
+/* the phone badge: bottom-left anchored, about 13 CSS px whatever the scale (--pm-ui × --pm-s ≈ .82); shown ≤ 640 px */
+.pm #read-or-play .rp-tag.is-badge { display: none; }
+.pm #read-or-play .rp-tag.is-badge > span {
+  transform: scale(var(--pm-ui)) translateY(-100%); padding: 4px 10px 5px 8px; font-size: 16px; font-weight: 650;
+}
+.pm #read-or-play .rp-tag.is-badge .rp-gl { stroke-width: 2.4; }
+/* the rewind between the two runs */
+.pm #read-or-play .rp-veil {
+  position: absolute; inset: 0; display: grid; place-items: center; opacity: 0;
+  background: radial-gradient(closest-side, rgba(10, 12, 26, .62), rgba(10, 12, 26, .4));
+}
+.pm #read-or-play .rp-veil > span {
+  display: grid; place-items: center; width: 70px; height: 70px; border-radius: 50%; color: #fff;
+  background: rgba(255, 255, 255, .14); box-shadow: inset 0 0 0 2px rgba(255, 255, 255, .55), 0 0 30px rgba(94, 234, 255, .35);
+}
+
+/* pointers: run B's agent is a ghost (a background event moves no pointer); your pointer can be knocked */
+.pm #read-or-play .pm-ptr.rp-ghost .pm-ptr-tip { fill: color-mix(in srgb, var(--t) 22%, rgba(255, 255, 255, .55)); stroke: var(--t); stroke-dasharray: 3 2; }
+.pm #read-or-play .pm-ptr.rp-ghost .pm-ptr-label { background: color-mix(in srgb, var(--t) 86%, transparent); }
+.pm #read-or-play .pm-ptr.rp-knocked .pm-ptr-in { transform: scale(var(--pm-ui)) rotate(var(--rp-rot, 0deg)); }
+.pm #read-or-play .pm-dev-mac.is-b .pm-ripple.is-ok > span { border-style: dashed; }
+
+/* the target window glows where it shows (agent violet, then green) */
+.pm #read-or-play .pm-win.rp-aim { --rp-t: var(--pm-s-agent); }
+.pm #read-or-play .pm-win.rp-aim[data-tone="ok"] { --rp-t: var(--pm-s-ok); }
+.pm #read-or-play .pm-win.rp-aim {
+  box-shadow: 0 0 0 calc(2px * var(--pm-ui)) var(--rp-t), 0 0 calc(34px * var(--pm-ui)) color-mix(in srgb, var(--rp-t) 70%, transparent), 0 8px 24px rgba(8, 10, 30, .22);
+}
+
+/* ---- Report.xlsx: toolbar with Save, status bar */
+.pm #read-or-play .rp-xl-tools {
+  position: relative; flex: 0 0 44px; display: flex; align-items: center; gap: 4px; padding: 0 10px;
+  background: #fff; border-bottom: 1px solid var(--pm-s-line); color: #3b4152;
+}
+.pm #read-or-play .rp-xl-t {
+  display: grid; place-items: center; flex: none; width: 28px; height: 28px; border-radius: 5px;
+  font: 700 14px/1 var(--pm-s-font); font-style: normal; text-decoration: none; color: #3b4152;
+}
+.pm #read-or-play u.rp-xl-t { text-decoration: underline; font-weight: 600; }
+.pm #read-or-play .rp-xl-t.is-i { font-family: Georgia, 'Times New Roman', serif; font-style: italic; font-weight: 600; }
+.pm #read-or-play .rp-xl-sep { flex: none; width: 1px; height: 20px; margin: 0 5px; background: var(--pm-s-line-2); }
+.pm #read-or-play .rp-xl-sel {
+  display: inline-flex; flex: none; align-items: center; justify-content: space-between; gap: 6px; min-width: 44px; height: 26px; padding: 0 7px;
+  border: 1px solid var(--pm-s-line-2); border-radius: 5px; font-size: 12.5px; color: var(--pm-s-ink);
+}
+.pm #read-or-play .rp-xl-sel.is-wide { min-width: 88px; }
+.pm #read-or-play .rp-xl-share,
+.pm #read-or-play .rp-xl-save {
+  position: absolute; top: 7px; height: 30px; display: flex; align-items: center; justify-content: center; gap: 6px;
+  border-radius: 7px; font-size: 13.5px; font-weight: 650;
+}
+.pm #read-or-play .rp-xl-share { left: 456px; width: 70px; border: 1px solid var(--pm-s-line-2); color: #2f3546; }
+.pm #read-or-play .rp-xl-save { left: 534px; width: 84px; background: #1f9d5c; color: #fff; box-shadow: inset 0 -1px 0 rgba(0, 0, 0, .15); }
+.pm #read-or-play .rp-xl-status {
+  position: relative; flex: 0 0 24px; display: flex; align-items: center; gap: 12px; padding: 0 12px;
+  background: #f3f4f7; border-top: 1px solid var(--pm-s-line); font-size: 12px; color: var(--pm-s-mu);
+}
+.pm #read-or-play .rp-xl-status.is-saved { background: color-mix(in srgb, var(--pm-s-ok) 12%, #fff); }
+.pm #read-or-play .rp-xl-st { display: inline-flex; align-items: center; gap: 6px; margin-left: auto; font-size: 13px; font-weight: 650; }
+.pm #read-or-play .rp-xl-st.is-unsaved { color: #9a5a00; }
+.pm #read-or-play .rp-xl-st.is-unsaved i { width: 8px; height: 8px; border-radius: 50%; background: #f0a020; box-shadow: 0 0 0 2px rgba(240, 160, 32, .25); }
+.pm #read-or-play .rp-xl-st.is-saved { color: var(--pm-s-ok); }
+.pm #read-or-play .rp-xl-st.is-saved .rp-gl { stroke-width: 2.4; }
+.pm #read-or-play .rp-xl-zoom { flex: none; font-variant-numeric: tabular-nums; }
+
+/* ---- Chrome: a flight-booking page */
+.pm #read-or-play .rp-site { height: 100%; display: flex; flex-direction: column; background: #f3f5fa; color: #1b1e2b; }
+.pm #read-or-play .rp-site-head {
+  flex: 0 0 52px; display: flex; align-items: center; gap: 18px; padding: 0 24px; background: #fff; border-bottom: 1px solid #e5e8ef;
+}
+.pm #read-or-play .rp-logo { display: inline-flex; align-items: center; gap: 7px; font-size: 21px; font-weight: 800; letter-spacing: -.03em; color: #1a6be0; }
+.pm #read-or-play .rp-logo b { font-weight: 800; color: #ff7a45; }
+.pm #read-or-play .rp-logo .rp-gl { stroke-width: 1.8; }
+.pm #read-or-play .rp-nav { display: flex; gap: 22px; margin-left: auto; font-size: 13.5px; font-weight: 500; color: #4a5163; }
+.pm #read-or-play .rp-avatar { flex: none; width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(135deg, #ffb27a, #ff7a9a); box-shadow: inset 0 0 0 2px rgba(255, 255, 255, .7); }
+.pm #read-or-play .rp-site-body {
+  flex: 1 1 auto; min-height: 0; display: grid; grid-template-columns: 376px minmax(0, 1fr); column-gap: 24px; padding: 18px 24px 0;
+}
+/* rows of fixed height: Pay now is centred on (612, 404) of the desktop whatever the fonts */
+.pm #read-or-play .rp-form { display: grid; grid-template-rows: 26px 50px 50px 16px 44px auto; row-gap: 8px; align-content: start; min-width: 0; }
+.pm #read-or-play .rp-h { font-size: 19px; font-weight: 750; line-height: 26px; letter-spacing: -.015em; white-space: nowrap; }
+.pm #read-or-play .rp-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; min-width: 0; }
+.pm #read-or-play .rp-field {
+  position: relative; display: flex; flex-direction: column; justify-content: center; gap: 1px; min-width: 0; padding: 0 12px;
+  border: 1px solid #d5d9e2; border-radius: 9px; background: #fff; font-size: 15px; font-weight: 600; white-space: nowrap;
+}
+.pm #read-or-play .rp-field small { font-size: 10.5px; font-weight: 500; color: #7b8295; }
+.pm #read-or-play .rp-field.is-focus { border-color: #1a6be0; box-shadow: 0 0 0 3px rgba(26, 107, 224, .22); }
+.pm #read-or-play .rp-field-v { position: relative; display: flex; align-items: center; min-height: 20px; }
+.pm #read-or-play .rp-ph { position: absolute; left: 0; top: 50%; transform: translateY(-50%); font-weight: 500; color: #a2a8b6; }
+.pm #read-or-play .rp-field.has-text .rp-ph { display: none; }
+.pm #read-or-play .rp-caret { display: none; flex: none; width: 2px; height: 19px; margin-left: 1px; background: #1a6be0; }
+.pm #read-or-play .rp-field.is-focus .rp-caret { display: block; animation: rp-blink 1.05s steps(1) infinite; }
+@keyframes rp-blink { 50% { opacity: 0; } }
+.pm #read-or-play .rp-lost { position: relative; flex: none; width: 0; height: 20px; }
+.pm #read-or-play .rp-lost i {
+  position: absolute; left: 2px; top: -2px; font: 800 20px/20px var(--pm-s-font); font-style: normal; color: var(--pm-s-err); opacity: 0;
+  text-decoration: line-through 2px; text-shadow: 0 0 6px rgba(255, 255, 255, .9);
+}
+.pm #read-or-play .rp-total { display: flex; align-items: center; justify-content: space-between; font-size: 12.5px; color: #6c7282; }
+.pm #read-or-play .rp-total b { font-size: 14px; color: #1b1e2b; }
+.pm #read-or-play .rp-pay {
+  position: relative; display: grid; place-items: center; border-radius: 10px; background: #1a6be0; color: #fff;
+  font-size: 16px; font-weight: 700; box-shadow: 0 8px 16px -8px rgba(26, 107, 224, .8), inset 0 1px 0 rgba(255, 255, 255, .25);
+}
+.pm #read-or-play .rp-pay-idle,
+.pm #read-or-play .rp-pay-busy { display: inline-flex; align-items: center; gap: 8px; }
+.pm #read-or-play .rp-pay-idle b { margin-left: 2px; padding-left: 10px; border-left: 1px solid rgba(255, 255, 255, .4); font-weight: 800; }
+.pm #read-or-play .rp-pay-busy { display: none; }
+.pm #read-or-play .rp-pay.is-pressed { background: #0d4497; box-shadow: inset 0 3px 8px rgba(0, 0, 0, .35); }
+.pm #read-or-play .rp-pay.is-pressed .rp-pay-idle { display: none; }
+.pm #read-or-play .rp-pay.is-pressed .rp-pay-busy { display: inline-flex; }
+.pm #read-or-play .rp-spin { width: 15px; height: 15px; border-radius: 50%; border: 2.5px solid rgba(255, 255, 255, .35); border-top-color: #fff; animation: rp-spin .8s linear infinite; }
+@keyframes rp-spin { to { transform: rotate(1turn); } }
+.pm #read-or-play .rp-secure { display: flex; align-items: center; gap: 6px; padding-top: 4px; font-size: 11.5px; color: #7b8295; }
+.pm #read-or-play .rp-side { align-self: start; display: grid; gap: 4px; min-width: 0; padding: 16px 16px 14px; border: 1px solid #e3e6ec; border-radius: 12px; background: #fff; }
+.pm #read-or-play .rp-side-h { font-size: 11px; font-weight: 650; letter-spacing: .06em; text-transform: uppercase; color: #7b8295; }
+.pm #read-or-play .rp-trip { display: flex; align-items: center; gap: 10px; font-size: 21px; font-weight: 800; letter-spacing: -.01em; }
+.pm #read-or-play .rp-trip i { flex: 1; height: 2px; background: repeating-linear-gradient(90deg, #c4c9d4 0 5px, transparent 5px 9px); }
+.pm #read-or-play .rp-trip-to { color: #a2a8b6; }
+.pm #read-or-play .rp-trip-sub { margin-bottom: 8px; font-size: 12px; color: #6c7282; }
+.pm #read-or-play .rp-line { display: flex; justify-content: space-between; gap: 10px; padding: 6px 0 2px; border-top: 1px solid #eef0f4; font-size: 13px; color: #4a5163; }
+.pm #read-or-play .rp-line b { font-weight: 600; color: #1b1e2b; }
+.pm #read-or-play .rp-line.is-total { font-weight: 700; color: #1b1e2b; }
+.pm #read-or-play .rp-line.is-total b { font-weight: 800; }
+.pm #read-or-play .rp-free { margin-top: 6px; font-size: 11.5px; font-weight: 600; color: #148a55; }
+
+/* ======================================================================= outcome */
+
+.pm #read-or-play .pm-ro-value { white-space: nowrap; }
+
+/* ======================================================================= Chinese */
+
+html[lang^="zh"] .pm #read-or-play .rp-md-p { font-size: 16px; line-height: 1.9; letter-spacing: .01em; }
+html[lang^="zh"] .pm #read-or-play .rp-md-h { font-weight: 700; letter-spacing: .01em; }
+html[lang^="zh"] .pm #read-or-play .rp-fig figcaption { font-style: normal; word-break: keep-all; overflow-wrap: anywhere; }
+html[lang^="zh"] .pm #read-or-play .rp-fig-svg .f-label { font-style: normal; }
+
+/* ======================================================================= narrower screens: README first, compact */
+
+@media (max-width: 1180px) {
+  .pm #read-or-play .rp { gap: 16px 22px; }
+  .pm #read-or-play .rp-paper { padding: 18px 20px 14px 24px; }
+  .pm #read-or-play .rp-md-h { font-size: 19px; }
+  .pm #read-or-play .rp-md-p { font-size: 14.5px; line-height: 1.66; }
+}
+@media (max-width: 899px) {
+  .pm #read-or-play .rp { grid-template-columns: minmax(0, 1fr); }
+  /* stacked: the README stays compact (heading and paragraph) so the desktop starts near the bar; the code fence and
+     Figure 1 are the README's ornament, the PLAYME pane below shows both clicks */
+  .pm #read-or-play .rp-md-pre,
+  .pm #read-or-play .rp-fig { display: none; }
+  .pm #read-or-play .rp-paper { padding: 16px 18px 14px 22px; }
+  .pm #read-or-play .rp-md-h { margin-bottom: 10px; padding-bottom: 7px; font-size: 17px; }
+  .pm #read-or-play .rp-md-h::before { left: -14px; font-size: 14px; }
+  .pm #read-or-play .rp-md-p { font-size: 14px; line-height: 1.62; }
+  .pm #read-or-play .rp-head { padding-top: 2px; }
+  html[lang^="zh"] .pm #read-or-play .rp-md-p { font-size: 14px; line-height: 1.75; }
+}
+@media (max-width: 640px) {
+  .pm #read-or-play .pm-scene.rp-scene { padding: 12px 12px 14px; }
+  .pm #read-or-play .rp-tabbar, .pm #read-or-play .rp-tab { height: 26px; }
+  .pm #read-or-play .rp-tab { font-size: 11.5px; }
+  .pm #read-or-play .rp-paper { padding: 13px 14px 12px 16px; }
+  .pm #read-or-play .rp-md-h { font-size: 16px; margin-bottom: 8px; padding-bottom: 6px; }
+  .pm #read-or-play .rp-md-h::before { display: none; }
+  .pm #read-or-play .rp-md-p { font-size: 13.5px; line-height: 1.58; }
+  .pm #read-or-play .rp-head { min-height: 26px; padding-left: 0; padding-right: 0; }
+  .pm #read-or-play .rp-file { gap: 7px; font-size: 11.5px; }
+  .pm #read-or-play .rp-runs { gap: 2px 10px; font-size: 10.5px; }
+  .pm #read-or-play .rp-run b { margin-right: 4px; }
+  .pm #read-or-play .rp-code { padding-top: 10px; }
+  .pm #read-or-play .rp-code .pm-code-pre { font-size: 12px; }
+  .pm #read-or-play .rp-code .pm-ln { padding: 0 8px 0 10px; }
+  .pm #read-or-play .rp-code .pm-lc { padding-right: 10px; }
+  /* on a phone the pointer labels and the narration carry the story; the in-scene tags would cover the page.
+     One badge stays: run B's success, as loud as run A's "You · interrupted" */
+  .pm #read-or-play .rp-tag { display: none; }
+  .pm #read-or-play .rp-tag.is-badge { display: block; }
+  /* the README shows the sentence the scene is at; all three share one cell, so the height never changes */
+  .pm #read-or-play .rp { row-gap: 12px; }
+  .pm #read-or-play .rp-md-p { display: grid; }
+  .pm #read-or-play .rp-md-p > .rp-sp { display: none; }
+  /* opacity (not visibility): screen readers still read the whole paragraph */
+  .pm #read-or-play .rp-sw { grid-area: 1 / 1; opacity: 0; }
+  .pm #read-or-play .rp-readme[data-at="0"] .rp-sw1,
+  .pm #read-or-play .rp-readme[data-at="1"] .rp-sw2,
+  .pm #read-or-play .rp-readme[data-at="2"] .rp-sw3 { opacity: 1; }
+  .pm #read-or-play .rp-sw2::before,
+  .pm #read-or-play .rp-sw3::before { content: '… '; color: color-mix(in srgb, var(--pm-paper-ink) 45%, transparent); }
+  .pm #read-or-play .rp-sw1::after,
+  .pm #read-or-play .rp-sw2::after { content: ' …'; color: color-mix(in srgb, var(--pm-paper-ink) 45%, transparent); }
+  html[lang^="zh"] .pm #read-or-play .rp-sw2::before,
+  html[lang^="zh"] .pm #read-or-play .rp-sw3::before { content: '……'; }
+  html[lang^="zh"] .pm #read-or-play .rp-sw1::after,
+  html[lang^="zh"] .pm #read-or-play .rp-sw2::after { content: '……'; }
+  .pm #read-or-play .pm-outcome { grid-template-columns: minmax(0, 1fr); }
+  .pm #read-or-play .pm-ro { grid-template-columns: minmax(0, 1fr) auto; align-items: baseline; gap: 10px; padding: 9px 0; }
+  .pm #read-or-play .pm-ro + .pm-ro { border-top: 1px solid var(--pm-line); }
+  .pm #read-or-play .pm-ro::before { display: none; }
+  .pm #read-or-play .pm-ro-value { font-size: 21px; justify-content: flex-end; padding-right: 4px; }
+  html[lang^="zh"] .pm #read-or-play .rp-md-p { font-size: 13.5px; line-height: 1.7; }
+}
+/* small phones (360 to 389 px): call B, with its decisive window="Report.xlsx", still fits the pane without scrolling */
+@media (max-width: 389px) {
+  .pm #read-or-play .rp-code .pm-code-pre { font-size: 11px; }
+  .pm #read-or-play .rp-code .pm-ln { padding: 0 6px 0 8px; }
+  .pm #read-or-play .rp-code .pm-lc { padding-right: 8px; }
+}
+
+/* ======================================================================= reduced motion */
+
+@media (prefers-reduced-motion: reduce) {
+  .pm #read-or-play .rp-live, .pm #read-or-play .rp-caret, .pm #read-or-play .rp-spin { animation: none !important; }
+  .pm #read-or-play .rp-s, .pm #read-or-play .rp-run, .pm #read-or-play .rp-ref, .pm #read-or-play .rp-md-pre, .pm #read-or-play .rp-code .pm-focus { transition: none !important; }
+}
+html[data-pm-motion="reduce"] .pm #read-or-play .rp-live,
+html[data-pm-motion="reduce"] .pm #read-or-play .rp-caret,
+html[data-pm-motion="reduce"] .pm #read-or-play .rp-spin { animation: none !important; }
